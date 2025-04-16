@@ -4,13 +4,13 @@ export default function Footer() {
   return (
     <footer className="bg-[#0D0B14] text-gray-400 py-6  border-t border-gray-700/50 text-sm">
       <div className="container mx-auto px-4 text-center">
-        <div className="mb-2">
+        <div className="">
           {/* Placeholder for logo if added later */}
           <span className="font-semibold text-gray-300">
             The Apostolic Church, Nigeria, FCT Field Abuja
           </span>
         </div>
-        <div className="mb-2">
+        <div className="mb-4">
           &copy; {currentYear} The Apostolic Church, Nigeria, FCT Field. All
           rights reserved.
         </div>

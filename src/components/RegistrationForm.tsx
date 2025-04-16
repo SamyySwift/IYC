@@ -299,7 +299,7 @@ export default function RegistrationForm() {
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-purple-500/40 to-orange-600/20 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 relative"
+                className="w-full bg-gradient-to-r from-purple-500/80 to-orange-500/80 hover:bg-purple-500 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 relative"
               >
                 Register Now
                 <div className="absolute inset-x-0  h-px -bottom-px bg-gradient-to-r w-3/4 mx-auto from-transparent via-orange-500 to-transparent" />
