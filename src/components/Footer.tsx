@@ -6,7 +6,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 text-center">
         <div className="mb-2">
           {/* Placeholder for logo if added later */}
-          <span className="font-semibold text-white">
+          <span className="font-semibold text-gray-300">
             The Apostolic Church, Nigeria, FCT Field Abuja
           </span>
         </div>

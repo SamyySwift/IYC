@@ -125,10 +125,7 @@ export default function RegistrationForm() {
   };
 
   return (
-    <BackgroundBeamsWithCollision className="bg-[#0D0B14] relative">
-      <div className="absolute top-96 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-96 w-96 h-96 bg-orange-500/20 rounded-full blur-3xl" />
-      <div className="absolute bottom-52 left-72 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl" />
+    <BackgroundBeamsWithCollision className="">
       <ImagesSlider className="h-[40rem] relative w-full mb-20" images={images}>
         <motion.div
           initial={{
