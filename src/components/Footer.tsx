@@ -2,7 +2,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-[#0D0B14] text-gray-400 py-6  border-t border-gray-700/50 text-sm">
+    <footer className="bg-[#0D0B14] text-gray-400 py-6  border-t border-gray-700/50 text-sm font-chillax">
       <div className="container mx-auto px-4 text-center">
         <div className="">
           {/* Placeholder for logo if added later */}

@@ -24,6 +24,7 @@ export default function RegistrationForm() {
   const [registrationCount, setRegistrationCount] = useState<number | null>(
     null
   );
+  const [isSubmitting, setIsSubmitting] = useState(false); // Add submitting state
   const {
     register,
     handleSubmit,
@@ -73,7 +74,32 @@ export default function RegistrationForm() {
   };
 
   const onSubmit = async (data: RegistrationFormData) => {
+    if (isSubmitting) return; // Prevent double submission
+    setIsSubmitting(true);
+    const loadingToastId = toast.loading("Submitting registration..."); // Show loading toast
+
     try {
+      // 1. Check if email already exists
+      const { data: existingUser, error: checkError } = await supabase
+        .from("registrations")
+        .select("id")
+        .eq("email", data.email)
+        .maybeSingle(); // Use maybeSingle to get one or null
+
+      if (checkError) {
+        console.error("Error checking email:", checkError);
+        throw new Error("Failed to verify email. Please try again.");
+      }
+
+      if (existingUser) {
+        toast.error("This email address has already been registered.", {
+          id: loadingToastId,
+        });
+        setIsSubmitting(false);
+        return; // Stop submission
+      }
+
+      // 2. Prepare registration data (if email doesn't exist)
       const registrationData = {
         full_name: data.fullName,
         email: data.email,
@@ -87,40 +113,64 @@ export default function RegistrationForm() {
         has_paid: false,
       };
 
-      const { error } = await supabase
+      // 3. Insert new registration
+      const { error: insertError } = await supabase
         .from("registrations")
         .insert([registrationData]);
 
-      if (error) {
+      if (insertError) {
         if (
-          error.message.includes(
+          insertError.message.includes(
             'violates check constraint "registrations_gender_check"'
           )
         ) {
-          toast.error("Invalid gender selected.");
+          throw new Error("Invalid gender selected.");
         } else {
-          throw error;
+          // Handle potential race condition where email was inserted between check and insert
+          if (
+            insertError.message.includes(
+              "duplicate key value violates unique constraint"
+            )
+          ) {
+            toast.error("This email address has already been registered.", {
+              id: loadingToastId,
+            });
+            setIsSubmitting(false);
+            return;
+          }
+          throw insertError; // Throw other insert errors
         }
       }
 
-      // Send data to Make webhook
-      await fetch(
-        "https://hook.eu2.make.com/kuoqxruqexb195ll1umjxdeh2dtferla",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(registrationData),
-        }
-      );
+      // 4. Send data to Make webhook (only if insert was successful)
+      try {
+        await fetch(
+          "https://hook.eu2.make.com/kuoqxruqexb195ll1umjxdeh2dtferla",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(registrationData),
+          }
+        );
+      } catch (webhookError) {
+        console.error("Make webhook error:", webhookError);
+        // Decide if you want to inform the user or just log it
+        // toast.error("Registration saved, but failed to notify system.", { id: loadingToastId });
+        // Don't throw here, registration was successful
+      }
 
-      toast.success("Registration successful!");
+      toast.success("Registration successful!", { id: loadingToastId });
       reset();
-      await fetchRegistrationCount();
+      await fetchRegistrationCount(); // Refresh count
     } catch (error: any) {
-      console.error("Registration error:", error);
-      toast.error(error.message || "Registration failed. Please try again.");
+      console.error("Registration process error:", error);
+      toast.error(error.message || "Registration failed. Please try again.", {
+        id: loadingToastId,
+      });
+    } finally {
+      setIsSubmitting(false); // Re-enable button regardless of outcome
     }
   };
 
@@ -285,7 +335,7 @@ export default function RegistrationForm() {
 
               <div>
                 <label className="block text-white mb-2">
-                  What do you hope to achieve from IYC 2025?
+                  What are your expectations from IYC 2025?
                 </label>
                 <textarea
                   {...register("goals", { required: "This field is required" })}
@@ -299,10 +349,13 @@ export default function RegistrationForm() {
 
               <button
                 type="submit"
-                className="w-full bg-gradient-to-r from-purple-500/80 to-orange-500/80 hover:bg-purple-500 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 relative"
+                disabled={isSubmitting} // Disable button while submitting
+                className="w-full bg-gradient-to-r from-purple-500/80 to-orange-500/80 hover:from-purple-500/90 hover:to-orange-500/90 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 relative disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                Register Now
-                <div className="absolute inset-x-0  h-px -bottom-px bg-gradient-to-r w-3/4 mx-auto from-transparent via-orange-500 to-transparent" />
+                {isSubmitting ? "Registering..." : "Register Now"}
+                {!isSubmitting && (
+                  <div className="absolute inset-x-0  h-px -bottom-px bg-gradient-to-r w-3/4 mx-auto from-transparent via-orange-500 to-transparent" />
+                )}
               </button>
             </div>
           </form>
