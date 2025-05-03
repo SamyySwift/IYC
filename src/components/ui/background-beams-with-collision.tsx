@@ -64,13 +64,38 @@ export const BackgroundBeamsWithCollision = ({
       delay: 2,
       className: "h-6",
     },
+
+    {
+      initialX: 1400,
+      translateX: 1400,
+      duration: 6,
+      repeatDelay: 3,
+      delay: 2,
+      className: "h-10",
+    },
+    {
+      initialX: 1600,
+      translateX: 1600,
+      duration: 7,
+      repeatDelay: 5,
+      delay: 4,
+      className: "h-8",
+    },
+    {
+      initialX: 1800,
+      translateX: 1800,
+      duration: 7,
+      repeatDelay: 5,
+      delay: 2,
+      className: "h-12",
+    },
   ];
 
   return (
     <div
       ref={parentRef}
       className={cn(
-        "h-auto relative w-screen overflow-hidden",
+        "h-auto relative overflow-hidden",
         // h-screen if you want bigger
         className
       )}

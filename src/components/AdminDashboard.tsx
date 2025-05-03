@@ -20,11 +20,12 @@ interface Registration {
   email: string;
   phone: string;
   gender: string;
+  shirt_size: string; // Add shirt size
   metropolitan: string;
   area: string;
   district: string;
   assembly: string;
-  goals: string; // Assuming goals are not editable in this simple implementation
+  goals: string;
   has_paid: boolean;
   created_at: string;
 }
@@ -220,6 +221,7 @@ export default function AdminDashboard() {
               <th className="text-left py-3 px-4">Email</th>
               <th className="text-left py-3 px-4">Phone</th>
               <th className="text-left py-3 px-4">Gender</th>
+              <th className="text-left py-3 px-4">Shirt Size</th>
               <th className="text-left py-3 px-4">Metropolitan</th>
               <th className="text-left py-3 px-4">Area</th>
               <th className="text-left py-3 px-4">District</th>
@@ -284,6 +286,28 @@ export default function AdminDashboard() {
                         onChange={handleEditFormChange}
                         className={inputStyle}
                       />
+                    </td>
+                    <td className="py-2 px-4">
+                      <select
+                        name="shirt_size"
+                        value={editFormData?.shirt_size || ""}
+                        onChange={handleEditFormChange}
+                        className={inputStyle}
+                      >
+                        <option value="Small">Small(S)</option>
+                        <option value="Medium">Medium(M)</option>
+                        <option value="Large">Large(L)</option>
+                        <option value="Extra Large">Extra Large(XL)</option>
+                        <option value="Double Extra Large">
+                          Double Extra Large(2XL)
+                        </option>
+                        <option value="Triple Extra Large">
+                          Triple Extra Large(3XL)
+                        </option>
+                        <option value="Quadruple Extra Large">
+                          Quadruple Extra Large(4XL)
+                        </option>
+                      </select>
                     </td>
                     <td className="py-2 px-4">
                       <input
@@ -361,6 +385,7 @@ export default function AdminDashboard() {
                     <td className="py-3 px-4">{registration.email}</td>
                     <td className="py-3 px-4">{registration.phone}</td>
                     <td className="py-3 px-4">{registration.gender}</td>
+                    <td className="py-3 px-4">{registration.shirt_size}</td>
                     <td className="py-3 px-4">{registration.metropolitan}</td>
                     <td className="py-3 px-4">{registration.area}</td>
                     <td className="py-3 px-4">{registration.district}</td>
