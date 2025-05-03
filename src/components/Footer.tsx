@@ -1,29 +1,40 @@
-export default function Footer() {
-  const currentYear = new Date().getFullYear();
+import { Facebook, Instagram, Twitter } from "lucide-react";
 
+export default function Footer() {
   return (
-    <footer className="bg-[#0D0B14] text-gray-400 py-6  border-t border-gray-700/50 text-sm font-chillax">
-      <div className="container mx-auto px-4 text-center">
-        <div className="">
-          {/* Placeholder for logo if added later */}
-          <span className="font-semibold text-gray-300">
-            The Apostolic Church, Nigeria, FCT Field Abuja
-          </span>
-        </div>
-        <div className="mb-4">
-          &copy; {currentYear} The Apostolic Church, Nigeria, FCT Field. All
-          rights reserved.
-        </div>
-        <div>
-          Designed by{" "}
-          <a
-            href="https://github.com/samswift" // Assuming a GitHub link, adjust if needed
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-purple-400 hover:text-purple-300"
-          >
-            SamSwift
-          </a>
+    <footer className="bg-white/5 backdrop-blur-lg py-8 mt-auto">
+      <div className="container mx-auto px-4">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 font-chillax">
+          <div className="text-white/60 text-sm">
+            © 2025 International Youth Conference. All rights reserved.
+          </div>
+
+          <div className="flex items-center gap-4">
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/60 hover:text-white transition-colors"
+            >
+              <Facebook className="w-5 h-5" />
+            </a>
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/60 hover:text-white transition-colors"
+            >
+              <Instagram className="w-5 h-5" />
+            </a>
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/60 hover:text-white transition-colors"
+            >
+              <Twitter className="w-5 h-5" />
+            </a>
+          </div>
         </div>
       </div>
     </footer>

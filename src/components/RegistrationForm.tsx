@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Users } from "lucide-react";
+import { Users, Facebook, Instagram, Twitter } from "lucide-react";
 import toast from "react-hot-toast";
 import { supabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
@@ -205,6 +205,35 @@ export default function RegistrationForm() {
               </span>
             </div>
           </div>
+
+          {/* Social Links */}
+          <div className="flex items-center gap-4 mb-4">
+            <a
+              href="https://facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <Facebook className="w-6 h-6" />
+            </a>
+            <a
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <Instagram className="w-6 h-6" />
+            </a>
+            <a
+              href="https://twitter.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <Twitter className="w-6 h-6" />
+            </a>
+          </div>
+
           <Link
             to="/admin/login"
             className="font-chillax px-4 py-2 backdrop-blur-sm border bg-purple-500/10 border-purple-500/20 text-white mx-auto text-center rounded-full relative mt-4"

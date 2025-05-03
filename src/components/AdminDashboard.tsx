@@ -35,7 +35,7 @@ type EditFormData = Omit<
   "id" | "created_at" | "goals" | "has_paid"
 >;
 
-const ITEMS_PER_PAGE = 50;
+const ITEMS_PER_PAGE = 10;
 
 export default function AdminDashboard() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
