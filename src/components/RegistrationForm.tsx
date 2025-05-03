@@ -175,7 +175,7 @@ export default function RegistrationForm() {
   };
 
   return (
-    <BackgroundBeamsWithCollision className="">
+    <BackgroundBeamsWithCollision>
       <ImagesSlider className="h-[40rem] relative w-full mb-20" images={images}>
         <motion.div
           initial={{
@@ -367,7 +367,9 @@ export default function RegistrationForm() {
                   What are your expectations from IYC 2025?
                 </label>
                 <textarea
-                  {...register("goals", { required: "This field is required" })}
+                  {...register("goals", {
+                    required: "This field is required",
+                  })}
                   rows={4}
                   className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
                 />
