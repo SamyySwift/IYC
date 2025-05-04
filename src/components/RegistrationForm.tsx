@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Users, Facebook, Instagram, Twitter } from "lucide-react";
+import { Users, Facebook, Instagram, Youtube } from "lucide-react";
 import toast from "react-hot-toast";
 import { supabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
@@ -211,28 +211,28 @@ export default function RegistrationForm() {
           {/* Social Links */}
           <div className="flex items-center gap-4 mb-4">
             <a
-              href="https://facebook.com"
+              href="https://www.facebook.com/share/1DiwZL9rRt/?mibextid=qi2Omg"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
+              className="text-white/80 hover:text-white p-2 rounded-full bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
             >
               <Facebook className="w-5 h-5" />
             </a>
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/tjm_tacn?igsh=emw4ZzA0bGh2eGJy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
+              className="text-white/80 hover:text-white p-2 rounded-full bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
             >
               <Instagram className="w-5 h-5" />
             </a>
             <a
-              href="https://twitter.com"
+              href="https://m.youtube.com/channel/UC6Lo3XIj-c2r1uDH_IlUzWg"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/80 hover:text-white p-2 rounded-full hover:bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
+              className="text-white/80 hover:text-white p-2 rounded-full bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
             >
-              <Twitter className="w-5 h-5" />
+              <Youtube className="w-5 h-5" />
             </a>
           </div>
 
