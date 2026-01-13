@@ -1,10 +1,10 @@
-import { useEffect, useState, ChangeEvent } from "react";
 import {
   Edit2,
   Trash2,
   LogOut,
   Save,
   X,
+  Filter,
   ChevronLeft,
   ChevronRight,
   Home,
@@ -16,7 +16,8 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { supabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
-import { format, nextSunday, isSunday } from "date-fns";
+import { useState, useEffect, ChangeEvent } from "react";
+import { format, isSunday, addDays } from "date-fns";
 
 interface Registration {
   id: string;
@@ -28,6 +29,10 @@ interface Registration {
   has_paid: boolean;
   created_at: string;
 }
+
+type FilterStatus = "All" | "Present" | "Absent" | "Unmarked";
+
+console.log("");
 
 // Type for the editable form data, excluding non-editable fields
 type EditFormData = Omit<
@@ -41,7 +46,7 @@ const ITEMS_PER_PAGE = 10;
 const getInitialDate = () => {
   const today = new Date();
   if (isSunday(today)) return format(today, "yyyy-MM-dd");
-  return format(nextSunday(today), "yyyy-MM-dd");
+  return format(addDays(today, (7 - today.getDay()) % 7 || 7), "yyyy-MM-dd");
 };
 
 export default function AdminDashboard() {
@@ -53,24 +58,60 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [attendanceDate, setAttendanceDate] = useState(getInitialDate());
   const [attendanceMap, setAttendanceMap] = useState<Record<string, "Present" | "Absent">>({});
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>("All");
   
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchRegistrations(currentPage);
     fetchAttendance();
-  }, [currentPage, attendanceDate]);
+  }, [currentPage, attendanceDate, filterStatus]);
 
   const fetchRegistrations = async (page: number) => {
     setIsLoading(true);
     const from = (page - 1) * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;
 
-    const { data, error, count } = await supabase
+    let query = supabase
       .from("registrations")
       .select("*", { count: "exact" })
-      .order("created_at", { ascending: false })
-      .range(from, to);
+      .order("created_at", { ascending: false });
+
+    // Apply Filters
+    if (filterStatus !== "All") {
+       if (filterStatus === "Present" || filterStatus === "Absent") {
+           // 1. Get IDs of consistent status
+           const { data: attData } = await supabase
+             .from("attendance")
+             .select("registration_id")
+             .eq("date", attendanceDate)
+             .eq("status", filterStatus);
+           
+           const ids = attData?.map((d: any) => d.registration_id) || [];
+           
+           // If no match, force empty result by passing dummy ID if list empty, or empty in
+           if (ids.length === 0) {
+               // No records match, so return empty immediately or filter by impossible ID
+               query = query.in("id", ["00000000-0000-0000-0000-000000000000"]); 
+           } else {
+               query = query.in("id", ids);
+           }
+       } else if (filterStatus === "Unmarked") {
+           // 1. Get IDs of ANY attendance for this date
+           const { data: attData } = await supabase
+             .from("attendance")
+             .select("registration_id")
+             .eq("date", attendanceDate);
+             
+           const ids = attData?.map((d: any) => d.registration_id) || [];
+           
+           if (ids.length > 0) {
+               query = query.not("id", "in", `(${ids.join(",")})`);
+           }
+       }
+    }
+
+    const { data, error, count } = await query.range(from, to);
 
     if (error) {
       toast.error("Failed to fetch registrations");
@@ -123,6 +164,10 @@ export default function AdminDashboard() {
 
       if (error) throw error;
       toast.success(`Marked as ${status}`);
+       // Re-fetch to update filter view if applicable
+      if (filterStatus !== "All") {
+          fetchRegistrations(currentPage);
+      }
     } catch (error) {
       console.error("Error marking attendance:", error);
       toast.error("Failed to update attendance");
@@ -266,6 +311,24 @@ export default function AdminDashboard() {
         </h1>
         
         <div className="flex flex-wrap gap-4 items-center justify-center">
+             {/* Filter Dropdown */}
+            <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
+                <Filter className="w-4 h-4 text-white/70" />
+                <select 
+                    value={filterStatus}
+                    onChange={(e) => {
+                        setFilterStatus(e.target.value as FilterStatus);
+                        setCurrentPage(1); // Reset page on filter change
+                    }}
+                    className="bg-transparent text-white focus:outline-none [&>option]:text-black"
+                >
+                    <option value="All">All Status</option>
+                    <option value="Present">Present</option>
+                    <option value="Absent">Absent</option>
+                    <option value="Unmarked">Unmarked</option>
+                </select>
+            </div>
+
              {/* Date Picker */}
             <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
                 <Calendar className="w-4 h-4 text-white/70" />
