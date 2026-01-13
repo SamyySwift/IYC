@@ -15,6 +15,7 @@ interface RegistrationFormData {
   email: string;
   phone: string;
   gender: "Male" | "Female" | "";
+  isNewMember: "Yes" | "No";
 }
 
 // Helper to get nearest Sunday
@@ -46,7 +47,7 @@ export default function RegistrationForm() {
       .on(
         "postgres_changes",
         {
-          event: "*", // Listen to all events to update stats potentially? Or just keep it simplish
+          event: "*", 
           schema: "public",
           table: "registrations",
         },
@@ -55,9 +56,6 @@ export default function RegistrationForm() {
         }
       )
       .subscribe();
-      
-    // Should we listen to attendance too? Probably overkill for public view but good for polish.
-    // For now, simple fetch on load.
 
     return () => {
       channel.unsubscribe();
@@ -108,7 +106,6 @@ export default function RegistrationForm() {
         .maybeSingle();
 
       if (checkError) {
-        console.error("Error checking email:", checkError);
         throw new Error("Failed to verify email. Please try again.");
       }
 
@@ -119,13 +116,13 @@ export default function RegistrationForm() {
         setIsSubmitting(false);
         return;
       }
-
       // 2. Prepare registration data
       const registrationData = {
         full_name: data.fullName,
         email: data.email,
         phone: data.phone,
         gender: data.gender,
+        is_new_member: data.isNewMember === "Yes",
         has_paid: false,
         // Optional fields set to null or empty string as permitted by DB
         area: null, 
@@ -141,26 +138,16 @@ export default function RegistrationForm() {
         .insert([registrationData]);
 
       if (insertError) {
-        if (
-          insertError.message.includes(
-            'violates check constraint "registrations_gender_check"'
-          )
-        ) {
+        if (insertError.message.includes('violates check constraint "registrations_gender_check"')) {
           throw new Error("Invalid gender selected.");
-        } else {
-          if (
-            insertError.message.includes(
-              "duplicate key value violates unique constraint"
-            )
-          ) {
+        } else if (insertError.message.includes("duplicate key value violates unique constraint")) {
             toast.error("This email address has already been registered.", {
               id: loadingToastId,
             });
             setIsSubmitting(false);
             return;
-          }
-          throw insertError;
         }
+        throw insertError;
       }
 
       toast.success("Registration successful!", { id: loadingToastId });
@@ -178,184 +165,252 @@ export default function RegistrationForm() {
 
   return (
     <div className="">
-      <ImagesSlider className="h-[40rem] relative w-full mb-20" images={images}>
+      <ImagesSlider className="h-[45rem] relative w-full mb-0" images={images}>
         <motion.div
-          initial={{
-            opacity: 0,
-            y: -80,
-          }}
-          animate={{
-            opacity: 1,
-            y: 0,
-          }}
-          transition={{
-            duration: 0.5,
-          }}
-          className="z-50 flex flex-col justify-center items-center gap-4 w-full px-4"
+          initial={{ opacity: 0, y: -80 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="z-50 flex flex-col justify-center items-center gap-6 w-full px-4"
         >
-          <motion.p className="font-bold font-chillax text-4xl md:text-6xl text-center bg-clip-text text-transparent bg-gradient-to-b from-purple-500/80 to-orange-500/60 py-4">
-            Nyanya Assembly Youth Registration 2026
-          </motion.p>
+          <motion.h1 
+            className="font-bold font-chillax text-5xl md:text-7xl text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-200 via-white to-orange-200 drop-shadow-2xl py-4"
+          >
+            Nyanya Assembly<br/>
+            <span className="text-4xl md:text-6xl text-white/90">Youth Registration 2026</span>
+          </motion.h1>
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 items-stretch">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2 items-stretch w-full max-w-4xl">
             {/* Total Youths */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-lg p-5 flex flex-col items-center justify-center gap-2 border border-white/10">
-              <div className="flex items-center gap-2">
-                  <Users className="w-6 h-6 text-white" />
-                  <span className="text-white/80 font-medium">Total Youths</span>
+            <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ delay: 0.2 }}
+               whileHover={{ scale: 1.05 }}
+               className="bg-white/5 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center justify-center gap-2 border border-white/10 shadow-xl hover:bg-white/10 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                  <div className="p-3 bg-purple-500/20 rounded-full">
+                    <Users className="w-6 h-6 text-purple-300" />
+                  </div>
+                  <span className="text-white/70 font-medium text-lg">Total Youths</span>
               </div>
-              <span className="text-2xl md:text-3xl font-bold text-white font-chillax">
+              <span className="text-4xl md:text-5xl font-bold text-white font-chillax tracking-tight">
                 {registrationCount !== null ? registrationCount : "..."}
               </span>
-            </div>
+            </motion.div>
 
              {/* Present */}
-             <div className="bg-green-500/10 backdrop-blur-sm rounded-lg p-5 flex flex-col items-center justify-center gap-2 border border-green-500/20">
-              <div className="flex items-center gap-2">
-                  <CheckCircle className="w-6 h-6 text-green-400" />
-                  <span className="text-green-100/80 font-medium">Present Today</span>
+             <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ delay: 0.3 }}
+               whileHover={{ scale: 1.05 }}
+               className="bg-green-900/10 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center justify-center gap-2 border border-green-500/20 shadow-xl hover:bg-green-900/20 transition-colors"
+            >
+              <div className="flex items-center gap-3">
+                  <div className="p-3 bg-green-500/20 rounded-full">
+                    <CheckCircle className="w-6 h-6 text-green-400" />
+                  </div>
+                  <span className="text-green-100/70 font-medium text-lg">Present Today</span>
               </div>
-              <span className="text-2xl md:text-3xl font-bold text-green-400 font-chillax">
+              <span className="text-4xl md:text-5xl font-bold text-green-400 font-chillax tracking-tight">
                 {attendanceStats.present}
               </span>
-            </div>
+            </motion.div>
 
              {/* Absent */}
-             <div className="bg-red-500/10 backdrop-blur-sm rounded-lg p-5 flex flex-col items-center justify-center gap-2 border border-red-500/20">
-              <div className="flex items-center gap-2">
-                  <XCircle className="w-6 h-6 text-red-400" />
-                  <span className="text-red-100/80 font-medium">Absent Today</span>
+             <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ delay: 0.4 }}
+               whileHover={{ scale: 1.05 }}
+               className="bg-red-900/10 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center justify-center gap-2 border border-red-500/20 shadow-xl hover:bg-red-900/20 transition-colors"
+             >
+              <div className="flex items-center gap-3">
+                  <div className="p-3 bg-red-500/20 rounded-full">
+                    <XCircle className="w-6 h-6 text-red-400" />
+                  </div>
+                  <span className="text-red-100/70 font-medium text-lg">Absent Today</span>
               </div>
-              <span className="text-2xl md:text-3xl font-bold text-red-400 font-chillax">
+              <span className="text-4xl md:text-5xl font-bold text-red-400 font-chillax tracking-tight">
                 {attendanceStats.absent}
               </span>
-            </div>
+            </motion.div>
           </div>
 
           {/* Social Links */}
-          <div className="flex items-center gap-4 mb-4">
-            <a
-              href="https://www.facebook.com/share/1DiwZL9rRt/?mibextid=qi2Omg"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/80 hover:text-white p-2 rounded-full bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <Facebook className="w-5 h-5" />
-            </a>
-            <a
-              href="https://www.instagram.com/tjm_tacn?igsh=emw4ZzA0bGh2eGJy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/80 hover:text-white p-2 rounded-full bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <Instagram className="w-5 h-5" />
-            </a>
-            <a
-              href="https://m.youtube.com/channel/UC6Lo3XIj-c2r1uDH_IlUzWg"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-white/80 hover:text-white p-2 rounded-full bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
-            >
-              <Youtube className="w-5 h-5" />
-            </a>
-          </div>
+          <motion.div 
+            initial={{ opacity: 0 }} 
+            animate={{ opacity: 1 }} 
+            transition={{ delay: 0.6 }}
+            className="flex items-center gap-6 mb-4"
+          >
+            {[
+              { Icon: Facebook, href: "https://www.facebook.com/share/1DiwZL9rRt/?mibextid=qi2Omg" },
+              { Icon: Instagram, href: "https://www.instagram.com/tjm_tacn?igsh=emw4ZzA0bGh2eGJy" },
+              { Icon: Youtube, href: "https://m.youtube.com/channel/UC6Lo3XIj-c2r1uDH_IlUzWg" }
+            ].map(({ Icon, href }, i) => (
+              <a
+                key={i}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-white/60 hover:text-white p-3 rounded-full bg-white/5 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1 hover:scale-110 border border-white/5"
+              >
+                <Icon className="w-6 h-6" />
+              </a>
+            ))}
+          </motion.div>
   
             <Link
               to="/admin/login"
-              className="font-chillax px-4 py-2 backdrop-blur-sm border bg-purple-500/10 border-purple-500/20 text-white mx-auto text-center rounded-full relative mt-4"
+              className="font-chillax px-6 py-2.5 backdrop-blur-md border bg-white/5 border-white/10 text-white/80 hover:text-white hover:bg-white/10 mx-auto text-center rounded-lg transition-all duration-300 relative group overflow-hidden"
             >
-              <span>Admin Panel</span>
-              <div className="absolute inset-x-0  h-px -bottom-px bg-gradient-to-r w-3/4 mx-auto from-transparent via-orange-500 to-transparent" />
+              <span className="relative z-10 font-medium tracking-wide">Admin Access</span>
+              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
             </Link>
           </motion.div>
-        </ImagesSlider>
-        <BackgroundBeamsWithCollision>
-          <div className="container mx-auto px-4 pb-12">
-            <div className="max-w-3xl mx-auto font-chillax">
+      </ImagesSlider>
+      
+      <BackgroundBeamsWithCollision className="min-h-screen">
+        <div className="container mx-auto px-4 py-24 relative z-10">
+          <div className="max-w-2xl mx-auto font-chillax">
+             {/* Use a wrapper for the form to give it stronger isolation */}
+            <motion.div 
+               initial={{ opacity: 0, y: 50 }}
+               whileInView={{ opacity: 1, y: 0 }}
+               viewport={{ once: true }}
+               transition={{ duration: 0.8 }}
+               className="bg-black/40 backdrop-blur-2xl rounded-3xl p-8 md:p-12 shadow-2xl border border-white/10 relative overflow-hidden"
+            >
+                 {/* Decorative background gradients within the card */}
+                 <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
+
+              <div className="text-center mb-10">
+                <h2 className="text-3xl font-bold text-white mb-2">Join usage</h2>
+                <p className="text-white/50">Complete the form below to register.</p>
+              </div>
+
               <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="bg-white/10 backdrop-blur-xl rounded-xl p-8 shadow-xl"
+                className="space-y-6 relative z-10"
               >
-                <div className="space-y-5">
-                  <div>
-                    <label className="block text-white mb-2">Full Name</label>
+                <div className="space-y-6">
+                  <div className="group">
+                    <label className="block text-white/70 mb-2 text-sm font-medium ml-1">Full Name</label>
                     <input
                       {...register("fullName", {
                         required: "Full name is required",
                       })}
-                      className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light"
+                      placeholder="Enter your full name"
                     />
                     {errors.fullName && (
-                      <p className="text-red-400 mt-1">
+                      <p className="text-red-400 text-sm mt-2 ml-1">
                         {errors.fullName.message}
                       </p>
                     )}
                   </div>
   
-                  <div>
-                    <label className="block text-white mb-2">Email</label>
+                  <div className="group">
+                    <label className="block text-white/70 mb-2 text-sm font-medium ml-1">Email Address</label>
                     <input
                       type="email"
                       {...register("email", { required: "Email is required" })}
-                      className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light"
+                      placeholder="Start with your email"
                     />
                     {errors.email && (
-                      <p className="text-red-400 mt-1">{errors.email.message}</p>
+                      <p className="text-red-400 text-sm mt-2 ml-1">{errors.email.message}</p>
                     )}
                   </div>
   
-                  <div>
-                    <label className="block text-white mb-2">Phone Number</label>
+                  <div className="group">
+                    <label className="block text-white/70 mb-2 text-sm font-medium ml-1">Phone Number</label>
                     <input
                       type="tel"
                       {...register("phone", {
                         required: "Phone number is required",
                       })}
-                      className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light"
+                      placeholder="+233..."
                     />
                     {errors.phone && (
-                      <p className="text-red-400 mt-1">{errors.phone.message}</p>
+                      <p className="text-red-400 text-sm mt-2 ml-1">{errors.phone.message}</p>
                     )}
                   </div>
   
-                  {/* Gender Dropdown */}
-                  <div>
-                    <label className="block text-white mb-2">Gender</label>
-                    <select
-                      {...register("gender", { required: "Gender is required" })}
-                      className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 appearance-none bg-transparent"
-                      defaultValue=""
-                    >
-                      <option value="" disabled className="text-black">
-                        Select Gender
-                      </option>
-                      <option value="Male" className="text-black">Male</option>
-                      <option value="Female" className="text-black">Female</option>
-                    </select>
+                  <div className="group">
+                    <label className="block text-white/70 mb-2 text-sm font-medium ml-1">Gender</label>
+                    <div className="relative">
+                      <select
+                        {...register("gender", { required: "Gender is required" })}
+                        className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light appearance-none cursor-pointer"
+                        defaultValue=""
+                      >
+                        <option value="" disabled className="bg-[#1a1a1a] text-white/50">
+                          Select Gender
+                        </option>
+                        <option value="Male" className="bg-[#1a1a1a]">Male</option>
+                        <option value="Female" className="bg-[#1a1a1a]">Female</option>
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/30">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                    </div>
                     {errors.gender && (
-                      <p className="text-red-400 mt-1">{errors.gender.message}</p>
+                      <p className="text-red-400 text-sm mt-2 ml-1">{errors.gender.message}</p>
+                    )}
+                  </div>
+
+                  <div className="group">
+                    <label className="block text-white/70 mb-2 text-sm font-medium ml-1">New Youth Member?</label>
+                    <div className="relative">
+                      <select
+                        {...register("isNewMember", { required: "Please select an option" })}
+                        className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light appearance-none cursor-pointer"
+                        defaultValue="No"
+                      >
+                         <option value="No" className="bg-[#1a1a1a]">No</option>
+                         <option value="Yes" className="bg-[#1a1a1a]">Yes</option>
+                      </select>
+                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/30">
+                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                      </div>
+                    </div>
+                    {errors.isNewMember && (
+                      <p className="text-red-400 text-sm mt-2 ml-1">{errors.isNewMember.message}</p>
                     )}
                   </div>
   
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-gradient-to-r from-purple-500/80 to-orange-500/80 hover:from-purple-500/90 hover:to-orange-500/90 text-white font-semibold py-3 px-5 rounded-lg transition duration-200 relative disabled:opacity-70 disabled:cursor-not-allowed"
+                    className="w-full group relative overflow-hidden bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-500 hover:to-orange-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20 disabled:opacity-70 disabled:cursor-not-allowed mt-4 transform hover:translate-y-[-2px]"
                   >
-                    {isSubmitting ? "Registering..." : "Register Now"}
-                    {!isSubmitting && (
-                      <div className="absolute inset-x-0  h-px -bottom-px bg-gradient-to-r w-3/4 mx-auto from-transparent via-orange-500 to-transparent" />
-                    )}
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                       {isSubmitting ? "Registering..." : "Complete Registration"}
+                       {!isSubmitting && (
+                         <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                       )}
+                    </span>
+                    <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
                   </button>
                 </div>
               </form>
-            </div>
+            </motion.div>
           </div>
-        </BackgroundBeamsWithCollision>
-      </div>
-    );
-  }
+        </div>
+      </BackgroundBeamsWithCollision>
+    </div>
+  );
+}
 
 const images = [
   "/images/team1.webp",

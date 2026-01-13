@@ -6,11 +6,11 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center gap-2 md:gap-4 font-chillax">
           <div className="text-white/60 text-xs md:text-sm">
-            The Apostolic Church Nigeria, FCT Field.
+            The Apostolic Church Nigeria, Nyanya Youths.
           </div>
           <div className="text-white/60 text-xs md:text-sm text-center">
-            © 2025 International Youth Conference. All rights reserved.
-          </div>
+            Vision: To raise a generation of spiritually
+            </div>
 
           <div className="flex items-center gap-4 mt-4 md:mt-0">
             <a

@@ -1,7 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { supabase } from "../lib/supabase";
 import toast from "react-hot-toast";
+import { BackgroundBeamsWithCollision } from "./ui/background-beams-with-collision";
+import { ChevronLeft } from "lucide-react";
 
 interface LoginFormData {
   email: string;
@@ -50,60 +52,82 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 font-chillax">
-      <div className="max-w-md w-full space-y-8 bg-white/10 backdrop-blur-lg p-8 rounded-xl shadow-xl">
-        <div>
-          <h2 className="text-center text-3xl font-bold text-white">
-            Admin Login
-          </h2>
-          <p className="mt-2 text-center text-white/60">
-            Sign in to access the admin dashboard
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            <div>
-              <label className="text-white">Email</label>
-              <input
-                type="email"
-                {...register("email", { required: "Email is required" })}
-                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-              {errors.email && (
-                <p className="text-red-400 mt-1">{errors.email.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="text-white">Password</label>
-              <input
-                type="password"
-                {...register("password", { required: "Password is required" })}
-                className="w-full px-4 py-2 rounded-lg bg-white/5 border border-white/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-              />
-              {errors.password && (
-                <p className="text-red-400 mt-1">{errors.password.message}</p>
-              )}
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200"
-          >
-            Sign In
-          </button>
-
-          <div className="text-center">
-            <a
-              href="/admin/register"
-              className="text-purple-400 hover:text-purple-300 text-sm"
-            >
-              Need to register? Sign up as admin
-            </a>
-          </div>
-        </form>
+    <BackgroundBeamsWithCollision className="min-h-screen flex flex-col items-center justify-center font-chillax">
+      <div className="absolute top-8 left-8 z-50">
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 text-white/60 hover:text-white transition-colors bg-white/5 hover:bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/5"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          <span>Back to Home</span>
+        </Link>
       </div>
-    </div>
+
+      <div className="relative z-10 w-full max-w-md px-4">
+        <div className="bg-black/40 backdrop-blur-2xl p-8 rounded-3xl shadow-2xl border border-white/10 relative overflow-hidden">
+           {/* Decorative background gradients */}
+           <div className="absolute top-0 right-0 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
+           <div className="absolute bottom-0 left-0 w-40 h-40 bg-orange-500/10 rounded-full blur-3xl -ml-16 -mb-16 pointer-events-none" />
+
+          <div className="relative z-10">
+            <h2 className="text-center text-3xl font-bold text-white mb-2">
+              Admin Login
+            </h2>
+            <p className="text-center text-white/50 mb-8">
+              Sign in to access the dashboard
+            </p>
+            
+            <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+              <div className="space-y-4">
+                <div className="group">
+                  <label className="block text-white/70 mb-2 text-sm font-medium ml-1">Email</label>
+                  <input
+                    type="email"
+                    {...register("email", { required: "Email is required" })}
+                    className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light"
+                    placeholder="admin@example.com"
+                  />
+                  {errors.email && (
+                    <p className="text-red-400 text-sm mt-2 ml-1">{errors.email.message}</p>
+                  )}
+                </div>
+
+                <div className="group">
+                  <label className="block text-white/70 mb-2 text-sm font-medium ml-1">Password</label>
+                  <input
+                    type="password"
+                    {...register("password", { required: "Password is required" })}
+                    className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light"
+                    placeholder="••••••••"
+                  />
+                  {errors.password && (
+                    <p className="text-red-400 text-sm mt-2 ml-1">{errors.password.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                className="w-full group relative overflow-hidden bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-500 hover:to-orange-500 text-white font-semibold py-3.5 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20 mt-2 transform hover:translate-y-[-2px]"
+              >
+                 <span className="relative z-10 flex items-center justify-center gap-2">
+                    Sign In
+                 </span>
+                 <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
+              </button>
+
+              <div className="text-center mt-6">
+                <Link
+                  to="/admin/register"
+                  className="text-white/40 hover:text-white/80 text-sm transition-colors"
+                >
+                  Need an account? <span className="text-purple-400 hover:text-purple-300">Sign up</span>
+                </Link>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </BackgroundBeamsWithCollision>
   );
 }

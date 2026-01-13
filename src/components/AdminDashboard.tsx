@@ -25,14 +25,13 @@ interface Registration {
   email: string;
   phone: string;
   gender: string;
+  is_new_member: boolean;
   goals: string;
-  // has_paid: boolean; // Deprecated in favor of monthly_dues
+  // has_paid: boolean; // Deprecated
   created_at: string;
 }
 
 type FilterStatus = "All" | "Present" | "Absent" | "Unmarked" | "Paid" | "Unpaid";
-
-console.log("");
 
 // Type for the editable form data, excluding non-editable fields
 type EditFormData = Omit<
@@ -60,6 +59,7 @@ export default function AdminDashboard() {
   const [attendanceMap, setAttendanceMap] = useState<Record<string, "Present" | "Absent">>({});
   const [paidMap, setPaidMap] = useState<Record<string, boolean>>({}); // True if paid for the selected month
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("All");
+  const [stats, setStats] = useState<{ present: number; absent: number }>({ present: 0, absent: 0 });
   
   const navigate = useNavigate();
 
@@ -67,7 +67,21 @@ export default function AdminDashboard() {
     fetchRegistrations(currentPage);
     fetchAttendance();
     fetchMonthlyDues();
+    fetchStats();
   }, [currentPage, attendanceDate, filterStatus]);
+
+  const fetchStats = async () => {
+    const { data, error } = await supabase
+      .from("attendance")
+      .select("status")
+      .eq("date", attendanceDate);
+      
+    if (!error && data) {
+       const present = data.filter(d => d.status === 'Present').length;
+       const absent = data.filter(d => d.status === 'Absent').length;
+       setStats({ present, absent });
+    }
+  };
 
   const fetchRegistrations = async (page: number) => {
     setIsLoading(true);
@@ -348,25 +362,6 @@ export default function AdminDashboard() {
       setCurrentPage(currentPage + 1);
     }
   };
-  
-  const [stats, setStats] = useState<{ present: number; absent: number }>({ present: 0, absent: 0 });
-  
-  useEffect(() => {
-     fetchStats();
-  }, [attendanceDate, attendanceMap]); 
-
-  const fetchStats = async () => {
-    const { data, error } = await supabase
-      .from("attendance")
-      .select("status")
-      .eq("date", attendanceDate);
-      
-    if (!error && data) {
-       const present = data.filter(d => d.status === 'Present').length;
-       const absent = data.filter(d => d.status === 'Absent').length;
-       setStats({ present, absent });
-    }
-  };
 
   return (
     <div className="container mx-auto px-4 py-8 font-chillax">
@@ -442,14 +437,17 @@ export default function AdminDashboard() {
       </div>
 
       {/* Table Container */}
-      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-xl overflow-x-auto mb-6">
-        <table className="w-full min-w-[1000px]">
+      <div className="relative group rounded-3xl p-[1px] bg-gradient-to-r from-purple-500/50 via-pink-500/50 to-orange-500/50 mb-8 shadow-2xl shadow-purple-500/10">
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-orange-600/20 blur-xl opacity-50 transition-opacity duration-500 group-hover:opacity-100" />
+        <div className="bg-black/40 backdrop-blur-2xl rounded-3xl p-6 relative z-10 overflow-x-auto h-full border border-white/10">
+          <table className="w-full min-w-[1000px]">
           <thead>
             <tr className="text-white border-b border-white/20">
               <th className="text-left py-3 px-4">Name</th>
               <th className="text-left py-3 px-4">Email</th>
               <th className="text-left py-3 px-4">Phone</th>
               <th className="text-left py-3 px-4">Gender</th>
+              <th className="text-center py-3 px-4">New Member?</th>
               <th className="text-left py-3 px-4">Payment Status</th>
                <th className="text-center py-3 px-4">Attendance</th>
               <th className="text-left py-3 px-4 min-w-[120px]">Actions</th>
@@ -458,13 +456,13 @@ export default function AdminDashboard() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={7} className="text-center py-10 text-white/70">
+                <td colSpan={8} className="text-center py-10 text-white/70">
                   Loading registrations...
                 </td>
               </tr>
             ) : registrations.length === 0 ? (
               <tr>
-                <td colSpan={7} className="text-center py-10 text-white/70">
+                <td colSpan={8} className="text-center py-10 text-white/70">
                   No registrations found.
                 </td>
               </tr>
@@ -512,6 +510,19 @@ export default function AdminDashboard() {
                         className={inputStyle}
                       />
                     </td>
+                    <td className="py-2 px-4 text-center">
+                       <input
+                        type="checkbox"
+                        name="is_new_member"
+                        checked={editFormData?.is_new_member || false}
+                        onChange={(e) => {
+                            if (editFormData) {
+                                setEditFormData({ ...editFormData, is_new_member: e.target.checked });
+                            }
+                        }}
+                        className="w-5 h-5 accent-purple-500"
+                      />
+                    </td>
                     <td className="py-2 px-4">
                       <span
                         className={`px-3 py-1 rounded-full text-sm ${
@@ -555,6 +566,13 @@ export default function AdminDashboard() {
                     <td className="py-3 px-4">{registration.email}</td>
                     <td className="py-3 px-4">{registration.phone}</td>
                     <td className="py-3 px-4">{registration.gender}</td>
+                    <td className="py-3 px-4 text-center">
+                        {registration.is_new_member ? (
+                            <span className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full text-xs">Yes</span>
+                        ) : (
+                             <span className="text-white/30 text-xs">No</span>
+                        )}
+                    </td>
                     <td className="py-3 px-4">
                       <button
                         onClick={() =>
@@ -624,6 +642,7 @@ export default function AdminDashboard() {
             )}
           </tbody>
         </table>
+      </div>
       </div>
 
       {/* Pagination Controls */}

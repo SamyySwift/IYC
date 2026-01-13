@@ -1,0 +1,2 @@
+ALTER TABLE registrations 
+ADD COLUMN is_new_member BOOLEAN DEFAULT FALSE;
