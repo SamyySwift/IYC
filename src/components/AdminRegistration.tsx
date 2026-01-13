@@ -1,4 +1,3 @@
-import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -10,7 +9,6 @@ interface RegistrationFormData {
   registrationCode: string;
 }
 
-// IYC2025-ADMIN
 
 export default function AdminRegistration() {
   const navigate = useNavigate();
@@ -22,27 +20,38 @@ export default function AdminRegistration() {
 
   const onSubmit = async (data: RegistrationFormData) => {
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/register-admin`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-          },
-          body: JSON.stringify(data),
-        }
-      );
+      if (data.registrationCode !== "ADMIN") {
+        throw new Error("Invalid registration code");
+      }
 
-      const result = await response.json();
+      // 1. Sign up the user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+      });
 
-      if (!response.ok) {
-        throw new Error(result.error);
+      if (authError) throw authError;
+
+      if (!authData.user) {
+        throw new Error("Registration failed. Please try again.");
+      }
+
+      // 2. Claim admin access via RPC
+      const { error: rpcError } = await supabase.rpc("claim_admin_access", {
+        access_code: data.registrationCode,
+        user_email: data.email,
+      });
+
+      if (rpcError) {
+        // If RPC fails (e.g. somehow invalid code passed server check, or DB issue), should we cleanup the auth user?
+        // For simplicity, we'll just throw. The user exists but won't be an admin.
+        throw new Error("Failed to verify admin privileges: " + rpcError.message);
       }
 
       toast.success("Admin registration successful! Please log in.");
       navigate("/admin/login");
-    } catch (error) {
+    } catch (error: any) {
+      console.error("Registration error:", error);
       toast.error(error.message || "Registration failed. Please try again.");
     }
   };

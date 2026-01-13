@@ -20,11 +20,6 @@ interface Registration {
   email: string;
   phone: string;
   gender: string;
-  shirt_size: string; // Add shirt size
-  metropolitan: string;
-  area: string;
-  district: string;
-  assembly: string;
   goals: string;
   has_paid: boolean;
   created_at: string;
@@ -221,11 +216,6 @@ export default function AdminDashboard() {
               <th className="text-left py-3 px-4">Email</th>
               <th className="text-left py-3 px-4">Phone</th>
               <th className="text-left py-3 px-4">Gender</th>
-              <th className="text-left py-3 px-4">Shirt Size</th>
-              <th className="text-left py-3 px-4">Metropolitan</th>
-              <th className="text-left py-3 px-4">Area</th>
-              <th className="text-left py-3 px-4">District</th>
-              <th className="text-left py-3 px-4">Assembly</th>
               <th className="text-left py-3 px-4">Payment Status</th>
               <th className="text-left py-3 px-4 min-w-[120px]">Actions</th>
             </tr>
@@ -233,13 +223,13 @@ export default function AdminDashboard() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={9} className="text-center py-10 text-white/70">
+                <td colSpan={6} className="text-center py-10 text-white/70">
                   Loading registrations...
                 </td>
               </tr>
             ) : registrations.length === 0 ? (
               <tr>
-                <td colSpan={9} className="text-center py-10 text-white/70">
+                <td colSpan={6} className="text-center py-10 text-white/70">
                   No registrations found.
                 </td>
               </tr>
@@ -288,64 +278,6 @@ export default function AdminDashboard() {
                       />
                     </td>
                     <td className="py-2 px-4">
-                      <select
-                        name="shirt_size"
-                        value={editFormData?.shirt_size || ""}
-                        onChange={handleEditFormChange}
-                        className={inputStyle}
-                      >
-                        <option value="Small">Small(S)</option>
-                        <option value="Medium">Medium(M)</option>
-                        <option value="Large">Large(L)</option>
-                        <option value="Extra Large">Extra Large(XL)</option>
-                        <option value="Double Extra Large">
-                          Double Extra Large(2XL)
-                        </option>
-                        <option value="Triple Extra Large">
-                          Triple Extra Large(3XL)
-                        </option>
-                        <option value="Quadruple Extra Large">
-                          Quadruple Extra Large(4XL)
-                        </option>
-                      </select>
-                    </td>
-                    <td className="py-2 px-4">
-                      <input
-                        type="text"
-                        name="metropolitan"
-                        value={editFormData?.metropolitan || ""}
-                        onChange={handleEditFormChange}
-                        className={inputStyle}
-                      />
-                    </td>
-                    <td className="py-2 px-4">
-                      <input
-                        type="text"
-                        name="area"
-                        value={editFormData?.area || ""}
-                        onChange={handleEditFormChange}
-                        className={inputStyle}
-                      />
-                    </td>
-                    <td className="py-2 px-4">
-                      <input
-                        type="text"
-                        name="district"
-                        value={editFormData?.district || ""}
-                        onChange={handleEditFormChange}
-                        className={inputStyle}
-                      />
-                    </td>
-                    <td className="py-2 px-4">
-                      <input
-                        type="text"
-                        name="assembly"
-                        value={editFormData?.assembly || ""}
-                        onChange={handleEditFormChange}
-                        className={inputStyle}
-                      />
-                    </td>
-                    <td className="py-2 px-4">
                       <span
                         className={`px-3 py-1 rounded-full text-sm ${
                           registration.has_paid
@@ -385,11 +317,6 @@ export default function AdminDashboard() {
                     <td className="py-3 px-4">{registration.email}</td>
                     <td className="py-3 px-4">{registration.phone}</td>
                     <td className="py-3 px-4">{registration.gender}</td>
-                    <td className="py-3 px-4">{registration.shirt_size}</td>
-                    <td className="py-3 px-4">{registration.metropolitan}</td>
-                    <td className="py-3 px-4">{registration.area}</td>
-                    <td className="py-3 px-4">{registration.district}</td>
-                    <td className="py-3 px-4">{registration.assembly}</td>
                     <td className="py-3 px-4">
                       <button
                         onClick={() =>
