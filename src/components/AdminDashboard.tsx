@@ -30,7 +30,7 @@ interface Registration {
   created_at: string;
 }
 
-type FilterStatus = "All" | "Present" | "Absent" | "Unmarked";
+type FilterStatus = "All" | "Present" | "Absent" | "Unmarked" | "Paid" | "Unpaid";
 
 console.log("");
 
@@ -105,6 +105,36 @@ export default function AdminDashboard() {
            
            if (ids.length > 0) {
                query = query.not("id", "in", `(${ids.join(",")})`);
+           }
+       } else if (filterStatus === "Paid") {
+           const dateObj = new Date(attendanceDate);
+           const startOfMonthStr = format(startOfMonth(dateObj), "yyyy-MM-dd");
+           
+           const { data: dueData } = await supabase
+             .from("monthly_dues")
+             .select("registration_id")
+             .eq("month_year", startOfMonthStr);
+
+           const ids = dueData?.map((d: any) => d.registration_id) || [];
+           
+           if (ids.length === 0) {
+               query = query.in("id", ["00000000-0000-0000-0000-000000000000"]); 
+           } else {
+               query = query.in("id", ids);
+           }
+       } else if (filterStatus === "Unpaid") {
+           const dateObj = new Date(attendanceDate);
+           const startOfMonthStr = format(startOfMonth(dateObj), "yyyy-MM-dd");
+           
+           const { data: dueData } = await supabase
+             .from("monthly_dues")
+             .select("registration_id")
+             .eq("month_year", startOfMonthStr);
+
+           const ids = dueData?.map((d: any) => d.registration_id) || [];
+           
+           if (ids.length > 0) {
+              query = query.not("id", "in", `(${ids.join(",")})`);
            }
        }
     }
@@ -226,7 +256,11 @@ export default function AdminDashboard() {
       }
 
       toast.success("Payment status updated");
-      fetchMonthlyDues(); // update local state
+      fetchMonthlyDues(); 
+      // Re-fetch list if we are filtering by payment status
+      if (filterStatus === "Paid" || filterStatus === "Unpaid") {
+          fetchRegistrations(currentPage);
+      }
     } catch (error) {
       console.error(error);
       toast.error("Failed to update payment status");
@@ -355,9 +389,11 @@ export default function AdminDashboard() {
                     className="bg-transparent text-white focus:outline-none [&>option]:text-black"
                 >
                     <option value="All">All Status</option>
-                    <option value="Present">Present</option>
-                    <option value="Absent">Absent</option>
-                    <option value="Unmarked">Unmarked</option>
+                    <option value="Present">Attendance: Present</option>
+                    <option value="Absent">Attendance: Absent</option>
+                    <option value="Unmarked">Attendance: Unmarked</option>
+                    <option value="Paid">Payment: Paid</option>
+                    <option value="Unpaid">Payment: Unpaid</option>
                 </select>
             </div>
 
