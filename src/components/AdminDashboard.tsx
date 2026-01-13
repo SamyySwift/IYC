@@ -1,3 +1,4 @@
+import { useState, useEffect, ChangeEvent } from "react";
 import {
   Edit2,
   Trash2,
@@ -16,8 +17,7 @@ import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { supabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
-import { useState, useEffect, ChangeEvent } from "react";
-import { format, isSunday, addDays } from "date-fns";
+import { format, isSunday, addDays, startOfMonth } from "date-fns";
 
 interface Registration {
   id: string;
@@ -26,7 +26,7 @@ interface Registration {
   phone: string;
   gender: string;
   goals: string;
-  has_paid: boolean;
+  // has_paid: boolean; // Deprecated in favor of monthly_dues
   created_at: string;
 }
 
@@ -37,7 +37,7 @@ console.log("");
 // Type for the editable form data, excluding non-editable fields
 type EditFormData = Omit<
   Registration,
-  "id" | "created_at" | "goals" | "has_paid"
+  "id" | "created_at" | "goals"
 >;
 
 const ITEMS_PER_PAGE = 10;
@@ -58,6 +58,7 @@ export default function AdminDashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [attendanceDate, setAttendanceDate] = useState(getInitialDate());
   const [attendanceMap, setAttendanceMap] = useState<Record<string, "Present" | "Absent">>({});
+  const [paidMap, setPaidMap] = useState<Record<string, boolean>>({}); // True if paid for the selected month
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("All");
   
   const navigate = useNavigate();
@@ -65,6 +66,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     fetchRegistrations(currentPage);
     fetchAttendance();
+    fetchMonthlyDues();
   }, [currentPage, attendanceDate, filterStatus]);
 
   const fetchRegistrations = async (page: number) => {
@@ -80,7 +82,6 @@ export default function AdminDashboard() {
     // Apply Filters
     if (filterStatus !== "All") {
        if (filterStatus === "Present" || filterStatus === "Absent") {
-           // 1. Get IDs of consistent status
            const { data: attData } = await supabase
              .from("attendance")
              .select("registration_id")
@@ -89,15 +90,12 @@ export default function AdminDashboard() {
            
            const ids = attData?.map((d: any) => d.registration_id) || [];
            
-           // If no match, force empty result by passing dummy ID if list empty, or empty in
            if (ids.length === 0) {
-               // No records match, so return empty immediately or filter by impossible ID
                query = query.in("id", ["00000000-0000-0000-0000-000000000000"]); 
            } else {
                query = query.in("id", ids);
            }
        } else if (filterStatus === "Unmarked") {
-           // 1. Get IDs of ANY attendance for this date
            const { data: attData } = await supabase
              .from("attendance")
              .select("registration_id")
@@ -146,9 +144,30 @@ export default function AdminDashboard() {
     setAttendanceMap(map);
   };
 
+  const fetchMonthlyDues = async () => {
+      // Calculate start of month for the SELECTED date
+      const dateObj = new Date(attendanceDate);
+      const startOfMonthStr = format(startOfMonth(dateObj), "yyyy-MM-dd");
+
+      const { data, error } = await supabase
+        .from("monthly_dues")
+        .select("registration_id")
+        .eq("month_year", startOfMonthStr);
+
+      if (error) {
+          console.error("Error fetching dues:", error);
+          return;
+      }
+
+      const map: Record<string, boolean> = {};
+      data?.forEach((record: any) => {
+          map[record.registration_id] = true;
+      });
+      setPaidMap(map);
+  };
+
   const handleAttendance = async (registrationId: string, status: "Present" | "Absent") => {
     try {
-      // Optimistic update
       setAttendanceMap((prev) => ({ ...prev, [registrationId]: status }));
 
       const { error } = await supabase
@@ -164,14 +183,12 @@ export default function AdminDashboard() {
 
       if (error) throw error;
       toast.success(`Marked as ${status}`);
-       // Re-fetch to update filter view if applicable
       if (filterStatus !== "All") {
           fetchRegistrations(currentPage);
       }
     } catch (error) {
       console.error("Error marking attendance:", error);
       toast.error("Failed to update attendance");
-      // Revert optimistic update (simplification: refetch)
       fetchAttendance();
     }
   };
@@ -183,16 +200,35 @@ export default function AdminDashboard() {
 
   const togglePaymentStatus = async (id: string, currentStatus: boolean) => {
     try {
-      const { error } = await supabase
-        .from("registrations")
-        .update({ has_paid: !currentStatus })
-        .eq("id", id);
+      const dateObj = new Date(attendanceDate);
+      const startOfMonthStr = format(startOfMonth(dateObj), "yyyy-MM-dd");
 
-      if (error) throw error;
+      if (currentStatus) {
+          // It was true, so we are flipping to false -> DELETE record
+          const { error } = await supabase
+            .from("monthly_dues")
+            .delete()
+            .eq("registration_id", id)
+            .eq("month_year", startOfMonthStr);
+          
+          if (error) throw error;
+      } else {
+          // It was false, flip to true -> INSERT record
+           const { error } = await supabase
+            .from("monthly_dues")
+            .insert({
+                registration_id: id,
+                month_year: startOfMonthStr,
+                amount: 0 // Default or handle amounts later
+            });
+            
+          if (error) throw error;
+      }
 
       toast.success("Payment status updated");
-      fetchRegistrations(currentPage);
+      fetchMonthlyDues(); // update local state
     } catch (error) {
+      console.error(error);
       toast.error("Failed to update payment status");
     }
   };
@@ -223,7 +259,7 @@ export default function AdminDashboard() {
 
   const handleEditClick = (registration: Registration) => {
     setEditingId(registration.id);
-    const { id, created_at, goals, has_paid, ...editableData } = registration;
+    const { id, created_at, goals, ...editableData } = registration;
     setEditFormData(editableData);
   };
 
@@ -279,15 +315,11 @@ export default function AdminDashboard() {
     }
   };
   
-  // Calculate stats from attendanceMap (NOTE: This only counts fetched rows if we paginate attendance? 
-  // Wait, attendanceMap currently only holds what we fetch.
-  // Ideally, for stats we might want a separate count query or fetch ALL attendance for the date.
-  // For simpler implementation now, I will add a separate useEffect to fetch stats for the WHOLE date.)
   const [stats, setStats] = useState<{ present: number; absent: number }>({ present: 0, absent: 0 });
   
   useEffect(() => {
      fetchStats();
-  }, [attendanceDate, attendanceMap]); // Update when map changes too to reflect immediate clicks
+  }, [attendanceDate, attendanceMap]); 
 
   const fetchStats = async () => {
     const { data, error } = await supabase
@@ -447,12 +479,12 @@ export default function AdminDashboard() {
                     <td className="py-2 px-4">
                       <span
                         className={`px-3 py-1 rounded-full text-sm ${
-                          registration.has_paid
+                          paidMap[registration.id]
                             ? "bg-green-500/20 text-green-300"
                             : "bg-red-500/20 text-red-300"
                         }`}
                       >
-                        {registration.has_paid ? "Paid" : "Unpaid"}
+                        {paidMap[registration.id] ? "Paid" : "Unpaid"}
                       </span>
                     </td>
                     <td className="py-2 px-4 text-center text-white/30">
@@ -492,17 +524,17 @@ export default function AdminDashboard() {
                         onClick={() =>
                           togglePaymentStatus(
                             registration.id,
-                            registration.has_paid
+                            paidMap[registration.id]
                           )
                         }
                         className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                          registration.has_paid
+                          paidMap[registration.id]
                             ? "bg-green-500/20 text-green-300 hover:bg-green-500/30"
                             : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
                         }`}
                         title="Toggle Payment Status"
                       >
-                        {registration.has_paid ? "Paid" : "Unpaid"}
+                        {paidMap[registration.id] ? "Paid" : "Unpaid"}
                       </button>
                     </td>
                     {/* Attendance Controls */}
