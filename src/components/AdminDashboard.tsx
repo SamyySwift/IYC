@@ -8,11 +8,15 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
-} from "lucide-react"; // Added Save, X, ChevronLeft, ChevronRight
+  Calendar,
+  CheckCircle,
+  XCircle,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { supabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
+import { format, nextSunday, isSunday } from "date-fns";
 
 interface Registration {
   id: string;
@@ -33,18 +37,29 @@ type EditFormData = Omit<
 
 const ITEMS_PER_PAGE = 10;
 
+// Helper to get nearest Sunday (Today if Sunday, or next Sunday)
+const getInitialDate = () => {
+  const today = new Date();
+  if (isSunday(today)) return format(today, "yyyy-MM-dd");
+  return format(nextSunday(today), "yyyy-MM-dd");
+};
+
 export default function AdminDashboard() {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editFormData, setEditFormData] = useState<EditFormData | null>(null); // State for form data
+  const [editFormData, setEditFormData] = useState<EditFormData | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [attendanceDate, setAttendanceDate] = useState(getInitialDate());
+  const [attendanceMap, setAttendanceMap] = useState<Record<string, "Present" | "Absent">>({});
+  
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchRegistrations(currentPage);
-  }, [currentPage]); // Re-fetch when currentPage changes
+    fetchAttendance();
+  }, [currentPage, attendanceDate]);
 
   const fetchRegistrations = async (page: number) => {
     setIsLoading(true);
@@ -53,9 +68,9 @@ export default function AdminDashboard() {
 
     const { data, error, count } = await supabase
       .from("registrations")
-      .select("*", { count: "exact" }) // Request total count
+      .select("*", { count: "exact" })
       .order("created_at", { ascending: false })
-      .range(from, to); // Fetch only the range for the current page
+      .range(from, to);
 
     if (error) {
       toast.error("Failed to fetch registrations");
@@ -63,12 +78,56 @@ export default function AdminDashboard() {
       setTotalCount(0);
     } else {
       setRegistrations(data || []);
-      setTotalCount(count || 0); // Store the total count
+      setTotalCount(count || 0);
     }
     setIsLoading(false);
-    // Ensure editing mode is cancelled if the edited item is no longer on the current page
+    
     if (editingId && !data?.find((reg) => reg.id === editingId)) {
       handleCancelClick();
+    }
+  };
+
+  const fetchAttendance = async () => {
+    const { data, error } = await supabase
+      .from("attendance")
+      .select("registration_id, status")
+      .eq("date", attendanceDate);
+
+    if (error) {
+      console.error("Error fetching attendance:", error);
+      return;
+    }
+
+    const map: Record<string, "Present" | "Absent"> = {};
+    data?.forEach((record: any) => {
+      map[record.registration_id] = record.status;
+    });
+    setAttendanceMap(map);
+  };
+
+  const handleAttendance = async (registrationId: string, status: "Present" | "Absent") => {
+    try {
+      // Optimistic update
+      setAttendanceMap((prev) => ({ ...prev, [registrationId]: status }));
+
+      const { error } = await supabase
+        .from("attendance")
+        .upsert(
+          { 
+            registration_id: registrationId, 
+            status, 
+            date: attendanceDate 
+          },
+          { onConflict: "registration_id, date" }
+        );
+
+      if (error) throw error;
+      toast.success(`Marked as ${status}`);
+    } catch (error) {
+      console.error("Error marking attendance:", error);
+      toast.error("Failed to update attendance");
+      // Revert optimistic update (simplification: refetch)
+      fetchAttendance();
     }
   };
 
@@ -87,7 +146,6 @@ export default function AdminDashboard() {
       if (error) throw error;
 
       toast.success("Payment status updated");
-      // Refetch current page data
       fetchRegistrations(currentPage);
     } catch (error) {
       toast.error("Failed to update payment status");
@@ -106,11 +164,10 @@ export default function AdminDashboard() {
       if (error) throw error;
 
       toast.success("Registration deleted");
-      // Check if the deleted item was the last on the page
       if (registrations.length === 1 && currentPage > 1) {
-        setCurrentPage(currentPage - 1); // Go to previous page
+        setCurrentPage(currentPage - 1);
       } else {
-        fetchRegistrations(currentPage); // Refetch current page
+        fetchRegistrations(currentPage);
       }
     } catch (error) {
       toast.error("Failed to delete registration");
@@ -121,7 +178,6 @@ export default function AdminDashboard() {
 
   const handleEditClick = (registration: Registration) => {
     setEditingId(registration.id);
-    // Populate form data with current registration details (only editable fields)
     const { id, created_at, goals, has_paid, ...editableData } = registration;
     setEditFormData(editableData);
   };
@@ -146,26 +202,24 @@ export default function AdminDashboard() {
     try {
       const { error } = await supabase
         .from("registrations")
-        .update(editFormData) // Update with data from editFormData state
+        .update(editFormData)
         .eq("id", id);
 
       if (error) throw error;
 
       toast.success("Registration updated successfully");
-      setEditingId(null); // Exit editing mode
+      setEditingId(null);
       setEditFormData(null);
-      fetchRegistrations(currentPage); // Refresh current page data
+      fetchRegistrations(currentPage);
     } catch (error) {
       toast.error("Failed to update registration");
       console.error("Update error:", error);
     }
   };
 
-  // --- Input Field Style ---
   const inputStyle =
     "bg-transparent border border-white/30 rounded px-2 py-1 w-full text-white/90 focus:outline-none focus:ring-1 focus:ring-blue-500";
 
-  // --- Pagination Logic ---
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   const handlePreviousPage = () => {
@@ -179,36 +233,85 @@ export default function AdminDashboard() {
       setCurrentPage(currentPage + 1);
     }
   };
+  
+  // Calculate stats from attendanceMap (NOTE: This only counts fetched rows if we paginate attendance? 
+  // Wait, attendanceMap currently only holds what we fetch.
+  // Ideally, for stats we might want a separate count query or fetch ALL attendance for the date.
+  // For simpler implementation now, I will add a separate useEffect to fetch stats for the WHOLE date.)
+  const [stats, setStats] = useState<{ present: number; absent: number }>({ present: 0, absent: 0 });
+  
+  useEffect(() => {
+     fetchStats();
+  }, [attendanceDate, attendanceMap]); // Update when map changes too to reflect immediate clicks
+
+  const fetchStats = async () => {
+    const { data, error } = await supabase
+      .from("attendance")
+      .select("status")
+      .eq("date", attendanceDate);
+      
+    if (!error && data) {
+       const present = data.filter(d => d.status === 'Present').length;
+       const absent = data.filter(d => d.status === 'Absent').length;
+       setStats({ present, absent });
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8 font-chillax">
       {/* Header */}
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <h1 className="text-2xl md:text-3xl font-bold text-white max-w-xs">
           Admin Dashboard
         </h1>
-        <div className="flex gap-2 items-center">
-          <Link
-            to="/"
-            className="flex items-center gap-2 bg-gray-500 text-white rounded-lg px-4 py-2 p-3 hover:bg-gray-700" // Adjusted padding
-          >
-            <Home className="w-4 h-4" />
-            Home
-          </Link>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg"
-          >
-            <LogOut className="w-4 h-4" />
-            Logout
-          </button>
+        
+        <div className="flex flex-wrap gap-4 items-center justify-center">
+             {/* Date Picker */}
+            <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
+                <Calendar className="w-4 h-4 text-white/70" />
+                <input 
+                    type="date" 
+                    value={attendanceDate}
+                    onChange={(e) => setAttendanceDate(e.target.value)}
+                    className="bg-transparent text-white focus:outline-none"
+                />
+            </div>
+            
+            <Link
+                to="/"
+                className="flex items-center gap-2 bg-gray-500 text-white rounded-lg px-4 py-2 hover:bg-gray-700 transition-colors"
+            >
+                <Home className="w-4 h-4" />
+                Home
+            </Link>
+            <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
+            >
+                <LogOut className="w-4 h-4" />
+                Logout
+            </button>
         </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 shadow-lg border border-white/10">
+              <h3 className="text-white/60 text-sm font-medium mb-1">Total Registrations</h3>
+              <p className="text-3xl font-bold text-white">{totalCount}</p>
+          </div>
+          <div className="bg-green-500/10 backdrop-blur-md rounded-xl p-6 shadow-lg border border-green-500/20">
+              <h3 className="text-green-300/80 text-sm font-medium mb-1">Present Today</h3>
+              <p className="text-3xl font-bold text-green-400">{stats.present}</p>
+          </div>
+          <div className="bg-red-500/10 backdrop-blur-md rounded-xl p-6 shadow-lg border border-red-500/20">
+              <h3 className="text-red-300/80 text-sm font-medium mb-1">Absent Today</h3>
+              <p className="text-3xl font-bold text-red-400">{stats.absent}</p>
+          </div>
       </div>
 
       {/* Table Container */}
       <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 shadow-xl overflow-x-auto mb-6">
-        {" "}
-        {/* Added mb-6 */}
         <table className="w-full min-w-[1000px]">
           <thead>
             <tr className="text-white border-b border-white/20">
@@ -217,19 +320,20 @@ export default function AdminDashboard() {
               <th className="text-left py-3 px-4">Phone</th>
               <th className="text-left py-3 px-4">Gender</th>
               <th className="text-left py-3 px-4">Payment Status</th>
+               <th className="text-center py-3 px-4">Attendance</th>
               <th className="text-left py-3 px-4 min-w-[120px]">Actions</th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={6} className="text-center py-10 text-white/70">
+                <td colSpan={7} className="text-center py-10 text-white/70">
                   Loading registrations...
                 </td>
               </tr>
             ) : registrations.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-center py-10 text-white/70">
+                <td colSpan={7} className="text-center py-10 text-white/70">
                   No registrations found.
                 </td>
               </tr>
@@ -239,7 +343,7 @@ export default function AdminDashboard() {
                   // --- Edit Row ---
                   <tr
                     key={registration.id}
-                    className="text-white/90 border-b border-white/10 bg-blue-900/20" // Highlight editing row
+                    className="text-white/90 border-b border-white/10 bg-blue-900/20"
                   >
                     <td className="py-2 px-4">
                       <input
@@ -288,6 +392,9 @@ export default function AdminDashboard() {
                         {registration.has_paid ? "Paid" : "Unpaid"}
                       </span>
                     </td>
+                    <td className="py-2 px-4 text-center text-white/30">
+                        (Edit Mode)
+                    </td>
                     <td className="py-2 px-4">
                       <div className="flex gap-2">
                         <button
@@ -334,6 +441,33 @@ export default function AdminDashboard() {
                       >
                         {registration.has_paid ? "Paid" : "Unpaid"}
                       </button>
+                    </td>
+                    {/* Attendance Controls */}
+                    <td className="py-3 px-4">
+                        <div className="flex items-center justify-center gap-2">
+                            <button
+                                onClick={() => handleAttendance(registration.id, "Present")}
+                                className={`p-2 rounded-lg transition-colors border ${
+                                    attendanceMap[registration.id] === "Present"
+                                        ? "bg-green-500 text-white border-green-500"
+                                        : "bg-transparent text-white/30 border-white/20 hover:border-green-500/50 hover:text-green-500/50"
+                                }`}
+                                title="Mark Present"
+                            >
+                                <CheckCircle className="w-5 h-5" />
+                            </button>
+                            <button
+                                onClick={() => handleAttendance(registration.id, "Absent")}
+                                className={`p-2 rounded-lg transition-colors border ${
+                                    attendanceMap[registration.id] === "Absent"
+                                        ? "bg-red-500 text-white border-red-500"
+                                        : "bg-transparent text-white/30 border-white/20 hover:border-red-500/50 hover:text-red-500/50"
+                                }`}
+                                title="Mark Absent"
+                            >
+                                <XCircle className="w-5 h-5" />
+                            </button>
+                        </div>
                     </td>
                     <td className="py-3 px-4">
                       <div className="flex gap-2">
