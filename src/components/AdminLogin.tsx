@@ -2,7 +2,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { supabase } from "../lib/supabase";
 import toast from "react-hot-toast";
-import { BackgroundBeamsWithCollision } from "./ui/background-beams-with-collision";
+// import { BackgroundBeamsWithCollision } from "./ui/background-beams-with-collision";
 import { ChevronLeft } from "lucide-react";
 
 interface LoginFormData {
@@ -52,7 +52,7 @@ export default function AdminLogin() {
   };
 
   return (
-    <BackgroundBeamsWithCollision className="min-h-screen flex flex-col items-center justify-center font-chillax">
+    <div className="min-h-screen flex flex-col items-center justify-center font-chillax">
       <div className="absolute top-8 left-8 z-50">
         <Link 
           to="/" 
@@ -128,6 +128,6 @@ export default function AdminLogin() {
           </div>
         </div>
       </div>
-    </BackgroundBeamsWithCollision>
+    </div>
   );
 }

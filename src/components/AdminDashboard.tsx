@@ -26,6 +26,7 @@ interface Registration {
   phone: string;
   gender: string;
   is_new_member: boolean;
+  group_number: number | null;
   goals: string;
   // has_paid: boolean; // Deprecated
   created_at: string;
@@ -448,6 +449,7 @@ export default function AdminDashboard() {
               <th className="text-left py-3 px-4">Phone</th>
               <th className="text-left py-3 px-4">Gender</th>
               <th className="text-center py-3 px-4">New Member?</th>
+              <th className="text-center py-3 px-4">Group</th>
               <th className="text-left py-3 px-4">Payment Status</th>
                <th className="text-center py-3 px-4">Attendance</th>
               <th className="text-left py-3 px-4 min-w-[120px]">Actions</th>
@@ -456,13 +458,13 @@ export default function AdminDashboard() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={8} className="text-center py-10 text-white/70">
+                <td colSpan={9} className="text-center py-10 text-white/70">
                   Loading registrations...
                 </td>
               </tr>
             ) : registrations.length === 0 ? (
               <tr>
-                <td colSpan={8} className="text-center py-10 text-white/70">
+                <td colSpan={9} className="text-center py-10 text-white/70">
                   No registrations found.
                 </td>
               </tr>
@@ -524,6 +526,27 @@ export default function AdminDashboard() {
                       />
                     </td>
                     <td className="py-2 px-4">
+                      <select
+                        name="group_number"
+                        value={editFormData?.group_number || ""}
+                        onChange={(e) => {
+                             if (editFormData) {
+                                setEditFormData({ 
+                                    ...editFormData, 
+                                    group_number: e.target.value ? parseInt(e.target.value) : null 
+                                });
+                            }
+                        }}
+                        className={`${inputStyle} bg-blue-900/50 [&>option]:text-black`}
+                      >
+                        <option value="">None</option>
+                        <option value="1">Group 1</option>
+                        <option value="2">Group 2</option>
+                        <option value="3">Group 3</option>
+                        <option value="4">Group 4</option>
+                      </select>
+                    </td>
+                    <td className="py-2 px-4">
                       <span
                         className={`px-3 py-1 rounded-full text-sm ${
                           paidMap[registration.id]
@@ -571,6 +594,15 @@ export default function AdminDashboard() {
                             <span className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full text-xs">Yes</span>
                         ) : (
                              <span className="text-white/30 text-xs">No</span>
+                        )}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                        {registration.group_number ? (
+                            <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full text-xs">
+                                Group {registration.group_number}
+                            </span>
+                        ) : (
+                             <span className="text-white/30 text-xs">-</span>
                         )}
                     </td>
                     <td className="py-3 px-4">

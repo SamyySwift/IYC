@@ -4,7 +4,7 @@ import { Users, Facebook, Instagram, Youtube, CheckCircle, XCircle } from "lucid
 import toast from "react-hot-toast";
 import { supabase } from "../lib/supabase";
 import { Link } from "react-router-dom";
-import { BackgroundBeamsWithCollision } from "../components/ui/background-beams-with-collision";
+// import { BackgroundBeamsWithCollision } from "../components/ui/background-beams-with-collision";
 import { motion } from "motion/react";
 import { ImagesSlider } from "../components/ui/images-slider";
 import { format, isSunday, addDays } from "date-fns";
@@ -247,9 +247,9 @@ export default function RegistrationForm() {
             className="flex items-center gap-6 mb-4"
           >
             {[
-              { Icon: Facebook, href: "https://www.facebook.com/share/1DiwZL9rRt/?mibextid=qi2Omg" },
-              { Icon: Instagram, href: "https://www.instagram.com/tjm_tacn?igsh=emw4ZzA0bGh2eGJy" },
-              { Icon: Youtube, href: "https://m.youtube.com/channel/UC6Lo3XIj-c2r1uDH_IlUzWg" }
+              { Icon: Facebook, href: "https://www.facebook.com/share/1CfaQQBxVB/?mibextid=wwXIfr" },
+              { Icon: Instagram, href: "https://www.instagram.com/tacn_na?igsh=dDhxcmplNzVzZDNw" },
+              { Icon: Youtube, href: "https://youtube.com/@tacn_na" }
             ].map(({ Icon, href }, i) => (
               <a
                 key={i}
@@ -273,7 +273,7 @@ export default function RegistrationForm() {
           </motion.div>
       </ImagesSlider>
       
-      <BackgroundBeamsWithCollision className="min-h-screen">
+      <div className="min-h-screen">
         <div className="container mx-auto px-4 py-24 relative z-10">
           <div className="max-w-2xl mx-auto font-chillax">
              {/* Use a wrapper for the form to give it stronger isolation */}
@@ -407,7 +407,7 @@ export default function RegistrationForm() {
             </motion.div>
           </div>
         </div>
-      </BackgroundBeamsWithCollision>
+      </div>
     </div>
   );
 }
@@ -418,4 +418,5 @@ const images = [
   "/images/team3.JPG",
   "/images/team5.JPG",
   "/images/team4.JPG",
+  "/images/youth_1.jpg",
 ];

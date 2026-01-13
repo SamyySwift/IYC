@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Youtube } from "lucide-react";
+import { Facebook, Instagram, Youtube, GlobeLock } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -9,12 +9,12 @@ export default function Footer() {
             The Apostolic Church Nigeria, Nyanya Youths.
           </div>
           <div className="text-white/60 text-xs md:text-sm text-center">
-            Vision: To raise a generation of spiritually
+            <span className="font-semibold">Vision:</span> To raise a united, vibrant, and spiritually grounded youths.
             </div>
 
           <div className="flex items-center gap-4 mt-4 md:mt-0">
             <a
-              href="https://www.facebook.com/share/1DiwZL9rRt/?mibextid=qi2Omg"
+              href="https://www.facebook.com/share/1CfaQQBxVB/?mibextid=wwXIfr"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white/80 hover:text-white p-2 rounded-full bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
@@ -22,7 +22,7 @@ export default function Footer() {
               <Facebook className="w-5 h-5" />
             </a>
             <a
-              href="https://www.instagram.com/tjm_tacn?igsh=emw4ZzA0bGh2eGJy"
+              href="https://www.instagram.com/tacn_na?igsh=dDhxcmplNzVzZDNw"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white/80 hover:text-white p-2 rounded-full bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
@@ -30,12 +30,20 @@ export default function Footer() {
               <Instagram className="w-5 h-5" />
             </a>
             <a
-              href="https://m.youtube.com/channel/UC6Lo3XIj-c2r1uDH_IlUzWg"
+              href="https://youtube.com/@tacn_na"
               target="_blank"
               rel="noopener noreferrer"
               className="text-white/80 hover:text-white p-2 rounded-full bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
             >
               <Youtube className="w-5 h-5" />
+            </a>
+            <a
+              href="https://www.tacnyanyaassembly.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white/80 hover:text-white p-2 rounded-full bg-white/10 transition-all duration-300 transform hover:-translate-y-1"
+            >
+              <GlobeLock className="w-5 h-5" />
             </a>
           </div>
         </div>
