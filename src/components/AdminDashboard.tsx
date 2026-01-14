@@ -32,7 +32,7 @@ interface Registration {
   created_at: string;
 }
 
-type FilterStatus = "All" | "Present" | "Absent" | "Unmarked" | "Paid" | "Unpaid" | "Group 1" | "Group 2" | "Group 3" | "Group 4";
+type FilterStatus = "All" | "Present" | "Absent" | "Unmarked" | "Paid" | "Unpaid" | "New Member" | "Group 1" | "Group 2" | "Group 3" | "Group 4";
 
 // Type for the editable form data, excluding non-editable fields
 type EditFormData = Omit<
@@ -65,11 +65,31 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    checkUser();
+    
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (!session) {
+            navigate("/admin/login");
+        }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
     fetchRegistrations(currentPage);
     fetchAttendance();
     fetchMonthlyDues();
     fetchStats();
   }, [currentPage, attendanceDate, filterStatus]);
+
+  const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+          navigate("/admin/login");
+      }
+  };
 
   const fetchStats = async () => {
     const { data, error } = await supabase
@@ -154,6 +174,8 @@ export default function AdminDashboard() {
        } else if (filterStatus.startsWith("Group")) {
           const groupNum = parseInt(filterStatus.split(" ")[1]);
           query = query.eq("group_number", groupNum);
+       } else if (filterStatus === "New Member") {
+          query = query.eq("is_new_member", true);
        }
     }
 
@@ -394,6 +416,8 @@ export default function AdminDashboard() {
                      <hr />
                     <option value="Paid">Payment: Paid</option>
                     <option value="Unpaid">Payment: Unpaid</option>
+                     <hr />
+                    <option value="New Member">New Members</option>
                     <hr />
                     <option value="Group 1">Group 1</option>
                     <option value="Group 2">Group 2</option>
@@ -447,9 +471,13 @@ export default function AdminDashboard() {
       </div>
 
       {/* Table Container */}
-      <div className="relative group rounded-3xl p-[1px] bg-gradient-to-r from-purple-500/50 via-pink-500/50 to-orange-500/50 mb-8 shadow-2xl shadow-purple-500/10">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-orange-600/20 blur-xl opacity-50 transition-opacity duration-500 group-hover:opacity-100" />
-        <div className="bg-black/40 backdrop-blur-2xl rounded-3xl p-6 relative z-10 overflow-x-auto h-full border border-white/10">
+      {/* Use a wrapper for the form to give it stronger isolation */}
+      <div className="bg-black/40 backdrop-blur-2xl rounded-3xl p-6 relative z-10 overflow-hidden border border-white/10 shadow-2xl mb-8">
+         {/* Decorative background gradients within the card */}
+         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
+         <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
+
+        <div className="relative z-10 overflow-x-auto h-full">
           <table className="w-full min-w-[1000px]">
           <thead>
             <tr className="text-white border-b border-white/20">
