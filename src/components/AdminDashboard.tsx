@@ -12,6 +12,7 @@ import {
   Calendar,
   CheckCircle,
   XCircle,
+  MinusCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -40,7 +41,7 @@ type EditFormData = Omit<
   "id" | "created_at" | "goals"
 >;
 
-const ITEMS_PER_PAGE = 10;
+const ITEMS_PER_PAGE = 50;
 
 // Helper to get nearest Sunday (Today if Sunday, or next Sunday)
 const getInitialDate = () => {
@@ -60,6 +61,7 @@ export default function AdminDashboard() {
   const [attendanceMap, setAttendanceMap] = useState<Record<string, "Present" | "Absent">>({});
   const [paidMap, setPaidMap] = useState<Record<string, boolean>>({}); // True if paid for the selected month
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("All");
+  const [adminEmail, setAdminEmail] = useState<string | null>(null);
   const [stats, setStats] = useState<{ present: number; absent: number }>({ present: 0, absent: 0 });
   
   const navigate = useNavigate();
@@ -88,6 +90,8 @@ export default function AdminDashboard() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
           navigate("/admin/login");
+      } else {
+          setAdminEmail(session.user.email ?? null);
       }
   };
 
@@ -263,6 +267,31 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleUnmarkAttendance = async (registrationId: string) => {
+    try {
+      const { error } = await supabase
+        .from("attendance")
+        .delete()
+        .eq("registration_id", registrationId)
+        .eq("date", attendanceDate);
+
+      if (error) throw error;
+      
+      const newMap = { ...attendanceMap };
+      delete newMap[registrationId];
+      setAttendanceMap(newMap);
+      
+      toast.success("Attendance unmarked");
+      fetchStats();
+      if (filterStatus !== "All") {
+          fetchRegistrations(currentPage);
+      }
+    } catch (error) {
+      console.error("Error unmarking attendance:", error);
+      toast.error("Failed to unmark attendance");
+    }
+  };
+
   const handleLogout = async () => {
     await supabase.auth.signOut();
     navigate("/admin/login");
@@ -393,9 +422,16 @@ export default function AdminDashboard() {
     <div className="container mx-auto px-4 py-8 font-chillax">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <h1 className="text-2xl md:text-3xl font-bold text-white max-w-xs">
-          Admin Dashboard
-        </h1>
+        <div className="flex flex-col items-center md:items-start gap-1">
+          <h1 className="text-2xl md:text-3xl font-bold text-white max-w-xs">
+            Admin Dashboard
+          </h1>
+          {adminEmail && (
+            <p className="text-white/50 text-xs md:text-sm font-medium">
+              Logged in as: <span className="text-white/80">{adminEmail}</span>
+            </p>
+          )}
+        </div>
         
         <div className="flex flex-wrap gap-4 items-center justify-center">
              {/* Filter Dropdown */}
@@ -684,6 +720,18 @@ export default function AdminDashboard() {
                                 title="Mark Absent"
                             >
                                 <XCircle className="w-5 h-5" />
+                            </button>
+                            <button
+                                onClick={() => handleUnmarkAttendance(registration.id)}
+                                className={`p-2 rounded-lg transition-colors border ${
+                                    !attendanceMap[registration.id]
+                                        ? "bg-gray-500/20 text-white/10 border-white/5 cursor-not-allowed"
+                                        : "bg-transparent text-white/30 border-white/20 hover:border-blue-500/50 hover:text-blue-500/50"
+                                }`}
+                                title="Clear Attendance"
+                                disabled={!attendanceMap[registration.id]}
+                            >
+                                <MinusCircle className="w-5 h-5" />
                             </button>
                         </div>
                     </td>
