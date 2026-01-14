@@ -180,7 +180,7 @@ export default function RegistrationForm() {
           </motion.h1>
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2 items-stretch w-full max-w-4xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2 items-stretch w-[90%] md:w-full max-w-4xl mx-auto">
             {/* Total Youths */}
             <motion.div 
                initial={{ opacity: 0, y: 20 }}
