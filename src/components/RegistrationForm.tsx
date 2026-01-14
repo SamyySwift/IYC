@@ -423,6 +423,7 @@ const images = [
   "/images/solo.jpg",
   "/images/youth_3.jpg",
   "/images/youth_4.jpg",
+  "/images/youth_10.jpg",
   "/images/youth_5.jpg",
   "/images/youth_6.jpg",
   "/images/youth_7.jpg",
