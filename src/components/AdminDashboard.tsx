@@ -32,7 +32,7 @@ interface Registration {
   created_at: string;
 }
 
-type FilterStatus = "All" | "Present" | "Absent" | "Unmarked" | "Paid" | "Unpaid";
+type FilterStatus = "All" | "Present" | "Absent" | "Unmarked" | "Paid" | "Unpaid" | "Group 1" | "Group 2" | "Group 3" | "Group 4";
 
 // Type for the editable form data, excluding non-editable fields
 type EditFormData = Omit<
@@ -151,6 +151,9 @@ export default function AdminDashboard() {
            if (ids.length > 0) {
               query = query.not("id", "in", `(${ids.join(",")})`);
            }
+       } else if (filterStatus.startsWith("Group")) {
+          const groupNum = parseInt(filterStatus.split(" ")[1]);
+          query = query.eq("group_number", groupNum);
        }
     }
 
@@ -388,8 +391,14 @@ export default function AdminDashboard() {
                     <option value="Present">Attendance: Present</option>
                     <option value="Absent">Attendance: Absent</option>
                     <option value="Unmarked">Attendance: Unmarked</option>
+                     <hr />
                     <option value="Paid">Payment: Paid</option>
                     <option value="Unpaid">Payment: Unpaid</option>
+                    <hr />
+                    <option value="Group 1">Group 1</option>
+                    <option value="Group 2">Group 2</option>
+                    <option value="Group 3">Group 3</option>
+                    <option value="Group 4">Group 4</option>
                 </select>
             </div>
 

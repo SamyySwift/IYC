@@ -176,7 +176,7 @@ export default function RegistrationForm() {
             className="font-bold font-chillax text-5xl md:text-7xl text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-200 via-white to-orange-200 drop-shadow-2xl py-4"
           >
             Nyanya Assembly<br/>
-            <span className="text-4xl md:text-6xl text-white/90">Youth Registration 2026</span>
+            <span className="text-4xl md:text-6xl text-white/90">Youth Movement</span>
           </motion.h1>
           
           {/* Stats Grid */}
@@ -419,4 +419,5 @@ const images = [
   "/images/team5.JPG",
   "/images/team4.JPG",
   "/images/youth_1.jpg",
+  "/images/solo.jpg",
 ];
