@@ -165,7 +165,7 @@ export default function RegistrationForm() {
 
   return (
     <div className="">
-      <ImagesSlider className="h-[45rem] relative w-full mb-0" images={images}>
+      <ImagesSlider className="h-[50rem] relative w-full mb-0" images={images}>
         <motion.div
           initial={{ opacity: 0, y: -80 }}
           animate={{ opacity: 1, y: 0 }}
@@ -173,10 +173,10 @@ export default function RegistrationForm() {
           className="z-50 flex flex-col justify-center items-center gap-6 w-full px-4"
         >
           <motion.h1 
-            className="font-bold font-chillax text-5xl md:text-7xl text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-200 via-white to-orange-200 drop-shadow-2xl py-4"
+            className="font-bold font-chillax text-4xl md:text-7xl text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-200 via-white to-orange-200 drop-shadow-2xl py-4"
           >
             Nyanya Assembly<br/>
-            <span className="text-4xl md:text-6xl text-white/90">Youth Movement</span>
+            <span className="text-3xl md:text-6xl text-white/90">Youth Movement</span>
           </motion.h1>
           
           {/* Stats Grid */}
@@ -265,7 +265,7 @@ export default function RegistrationForm() {
   
             <Link
               to="/admin/login"
-              className="font-chillax px-6 py-2.5 backdrop-blur-md border bg-white/5 border-white/10 text-white/80 hover:text-white hover:bg-white/10 mx-auto text-center rounded-lg transition-all duration-300 relative group overflow-hidden"
+              className="font-chillax px-6 py-2 mb-4 backdrop-blur-md border bg-white/5 border-white/10 text-white/80 hover:text-white hover:bg-white/10 mx-auto text-center rounded-lg transition-all duration-300 relative group overflow-hidden"
             >
               <span className="relative z-10 font-medium tracking-wide">Admin Access</span>
               <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
@@ -289,7 +289,7 @@ export default function RegistrationForm() {
                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
 
               <div className="text-center mb-10">
-                <h2 className="text-3xl font-bold text-white mb-2">Join usage</h2>
+                <h2 className="text-3xl font-bold text-white mb-2">Join Us Now</h2>
                 <p className="text-white/50">Complete the form below to register.</p>
               </div>
 
@@ -414,9 +414,17 @@ export default function RegistrationForm() {
 
 const images = [
   "/images/team1.webp",
-  "https://images.unsplash.com/photo-1482189349482-3defd547e0e9?q=80&w=2848&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  "/images/team3.JPG",
+  "/images/youth_9.jpeg",
+  "images/image.avif",
+  "images/image_3.jpg",
   "/images/youth_1.jpg",
-   "/images/blessing.jpg",
+  "/images/youth_2.jpg",
+   "images/image_4.jpg",
   "/images/solo.jpg",
+  "/images/youth_3.jpg",
+  "/images/youth_4.jpg",
+  "/images/youth_5.jpg",
+  "/images/youth_6.jpg",
+  "/images/youth_7.jpg",
+  "/images/youth_8.jpg"
 ];
