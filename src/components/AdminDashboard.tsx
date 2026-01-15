@@ -28,8 +28,6 @@ interface Registration {
   gender: string;
   is_new_member: boolean;
   group_number: number | null;
-  goals: string;
-  // has_paid: boolean; // Deprecated
   created_at: string;
 }
 
@@ -38,7 +36,7 @@ type FilterStatus = "All" | "Present" | "Absent" | "Unmarked" | "Paid" | "Unpaid
 // Type for the editable form data, excluding non-editable fields
 type EditFormData = Omit<
   Registration,
-  "id" | "created_at" | "goals"
+  "id" | "created_at"
 >;
 
 const ITEMS_PER_PAGE = 50;
@@ -362,7 +360,7 @@ export default function AdminDashboard() {
 
   const handleEditClick = (registration: Registration) => {
     setEditingId(registration.id);
-    const { id, created_at, goals, ...editableData } = registration;
+    const { id, created_at, ...editableData } = registration;
     setEditFormData(editableData);
   };
 

@@ -124,12 +124,6 @@ export default function RegistrationForm() {
         gender: data.gender,
         is_new_member: data.isNewMember === "Yes",
         has_paid: false,
-        // Optional fields set to null or empty string as permitted by DB
-        area: null, 
-        expectations: null,
-        metropolitan: '',
-        district: '',
-        assembly: ''
       };
 
       // 3. Insert new registration
@@ -289,7 +283,7 @@ export default function RegistrationForm() {
                  <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
 
               <div className="text-center mb-10">
-                <h2 className="text-3xl font-bold text-white mb-2">Join Us Now</h2>
+                <h2 className="text-3xl font-bold text-white mb-2">Join Us</h2>
                 <p className="text-white/50">Complete the form below to register.</p>
               </div>
 
