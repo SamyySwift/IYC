@@ -13,6 +13,7 @@ import {
   CheckCircle,
   XCircle,
   MinusCircle,
+  CreditCard,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -61,6 +62,8 @@ export default function AdminDashboard() {
   const [filterStatus, setFilterStatus] = useState<FilterStatus>("All");
   const [adminEmail, setAdminEmail] = useState<string | null>(null);
   const [stats, setStats] = useState<{ present: number; absent: number }>({ present: 0, absent: 0 });
+  const [showPayAllModal, setShowPayAllModal] = useState(false);
+  const [selectedReg, setSelectedReg] = useState<{ id: string; name: string } | null>(null);
   
   const navigate = useNavigate();
 
@@ -331,6 +334,35 @@ export default function AdminDashboard() {
     } catch (error) {
       console.error(error);
       toast.error("Failed to update payment status");
+    }
+  };
+  const handlePayAllMonths = async () => {
+    if (!selectedReg) return;
+    const currentYear = new Date().getFullYear();
+
+    try {
+      const records = Array.from({ length: 12 }, (_, i) => ({
+        registration_id: selectedReg.id,
+        month_year: `${currentYear}-${String(i + 1).padStart(2, '0')}-01`,
+        amount: 0,
+      }));
+
+      const { error } = await supabase
+        .from("monthly_dues")
+        .upsert(records, { onConflict: "registration_id, month_year" });
+
+      if (error) throw error;
+
+      toast.success(`Marked all months of ${currentYear} as paid for ${selectedReg.name}`);
+      setShowPayAllModal(false);
+      setSelectedReg(null);
+      fetchMonthlyDues();
+      if (filterStatus === "Paid" || filterStatus === "Unpaid") {
+        fetchRegistrations(currentPage);
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update bulk payment");
     }
   };
 
@@ -693,6 +725,16 @@ export default function AdminDashboard() {
                       >
                         {paidMap[registration.id] ? "Paid" : "Unpaid"}
                       </button>
+                      <button
+                        onClick={() => {
+                          setSelectedReg({ id: registration.id, name: registration.full_name });
+                          setShowPayAllModal(true);
+                        }}
+                        className="p-1 hover:bg-white/10 rounded transition-colors text-white/40 hover:text-white"
+                        title="Pay All Year"
+                      >
+                        <CreditCard className="w-4 h-4" />
+                      </button>
                     </td>
                     {/* Attendance Controls */}
                     <td className="py-3 px-4">
@@ -782,6 +824,49 @@ export default function AdminDashboard() {
             Next
             <ChevronRight className="w-4 h-4" />
           </button>
+        </div>
+      )}
+
+      {/* Bulk Payment Modal */}
+      {showPayAllModal && selectedReg && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowPayAllModal(false)}
+          />
+          <div className="bg-gray-900/90 border border-white/10 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md relative z-10 shadow-2xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-bold text-white flex items-center gap-2">
+                <CreditCard className="w-5 h-5 text-blue-400" />
+                Bulk Payment
+              </h3>
+              <button 
+                onClick={() => setShowPayAllModal(false)}
+                className="text-white/40 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <p className="text-white/70 mb-6">
+              Are you sure you want to mark all 12 months of <span className="text-white font-semibold">{new Date().getFullYear()}</span> as paid for <span className="text-white font-semibold">{selectedReg.name}</span>?
+            </p>
+
+            <div className="flex gap-4">
+              <button
+                onClick={() => setShowPayAllModal(false)}
+                className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all border border-white/5"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handlePayAllMonths}
+                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-600/20"
+              >
+                Confirm Payment
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
