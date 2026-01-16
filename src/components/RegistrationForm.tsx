@@ -158,7 +158,7 @@ export default function RegistrationForm() {
   };
 
   return (
-    <div className="relative min-h-screen bg-[#0A0A0A] selection:bg-purple-500/30 overflow-x-hidden">
+    <div className="relative min-h-screen bg-[#0A0A0A] selection:bg-purple-500/30 overflow-hidden">
       <div className="noise-overlay" />
       
       <ImagesSlider className="h-screen relative w-full mb-0" images={images}>
@@ -276,8 +276,8 @@ export default function RegistrationForm() {
               className="glass rounded-[2rem] p-8 md:p-16 shadow-[0_24px_64px_-12px_rgba(0,0,0,0.5)] border border-white/5 relative overflow-hidden"
             >
               {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px] -mr-64 -mt-64 pointer-events-none" />
-              <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[120px] -ml-64 -mb-64 pointer-events-none" />
+              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px] translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[120px] -translate-x-1/2 translate-y-1/2 pointer-events-none" />
 
               <div className="text-center mb-16 relative">
                 <motion.span 

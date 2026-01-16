@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import { supabase } from "../lib/supabase";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { motion } from "motion/react";
 
 interface RegistrationFormData {
@@ -13,6 +14,8 @@ interface RegistrationFormData {
 
 export default function AdminRegistration() {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRegistrationCode, setShowRegistrationCode] = useState(false);
   const {
     register,
     handleSubmit,
@@ -107,7 +110,7 @@ export default function AdminRegistration() {
                   <label className="block text-white/30 text-[10px] uppercase font-bold tracking-[0.2em] mb-3 ml-1">PASSWORD</label>
                   <div className="relative group/input">
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       {...register("password", {
                         required: "Password is required",
                         minLength: {
@@ -115,9 +118,20 @@ export default function AdminRegistration() {
                           message: "Password must be at least 8 characters",
                         },
                       })}
-                      className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder-white/10 focus:outline-none focus:border-orange-500/50 focus:bg-white/5 transition-all duration-500 font-light text-sm group-hover/input:bg-white/[0.05] group-hover/input:border-white/10"
+                      className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder-white/10 focus:outline-none focus:border-orange-500/50 focus:bg-white/5 transition-all duration-500 font-light text-sm group-hover/input:bg-white/[0.05] group-hover/input:border-white/10 pr-14"
                       placeholder="••••••••"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl text-white/20 hover:text-white hover:bg-white/10 transition-all duration-300 z-20"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
                     <div className="absolute inset-0 rounded-2xl bg-orange-500/0 group-hover/input:bg-orange-500/2 transition-all duration-500 pointer-events-none" />
                   </div>
                   {errors.password && (
@@ -129,13 +143,24 @@ export default function AdminRegistration() {
                   <label className="block text-white/30 text-[10px] uppercase font-bold tracking-[0.2em] mb-3 ml-1">Activation CODE</label>
                   <div className="relative group/input">
                     <input
-                      type="password"
+                      type={showRegistrationCode ? "text" : "password"}
                       {...register("registrationCode", {
                         required: "Registration code is required",
                       })}
-                      className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder-white/10 focus:outline-none focus:border-orange-500/50 focus:bg-white/5 transition-all duration-500 font-light text-sm group-hover/input:bg-white/[0.05] group-hover/input:border-white/10"
+                      className="w-full px-6 py-4 rounded-2xl bg-white/[0.03] border border-white/5 text-white placeholder-white/10 focus:outline-none focus:border-orange-500/50 focus:bg-white/5 transition-all duration-500 font-light text-sm group-hover/input:bg-white/[0.05] group-hover/input:border-white/10 pr-14"
                       placeholder="Enter Protocol"
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowRegistrationCode(!showRegistrationCode)}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-xl text-white/20 hover:text-white hover:bg-white/10 transition-all duration-300 z-20"
+                    >
+                      {showRegistrationCode ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
                     <div className="absolute inset-0 rounded-2xl bg-orange-500/0 group-hover/input:bg-orange-500/2 transition-all duration-500 pointer-events-none" />
                   </div>
                   {errors.registrationCode && (
