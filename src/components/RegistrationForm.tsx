@@ -172,7 +172,7 @@ export default function RegistrationForm() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1.5 }}
-          className="z-50 flex flex-col justify-center items-center gap-12 w-full px-4"
+          className="z-50 flex flex-col justify-center items-center gap-8 md:gap-12 w-full px-4"
         >
           <div className="text-center space-y-4">
             <motion.div
@@ -180,7 +180,7 @@ export default function RegistrationForm() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2, ease: [0.215, 0.61, 0.355, 1] }}
             >
-              <h2 className="text-purple-400 font-medium tracking-[0.2em] uppercase text-sm mb-4">
+              <h2 className="text-purple-400 font-medium tracking-[0.2em] uppercase text-[10px] md:text-sm mb-4">
                 Since 2026
               </h2>
             </motion.div>
@@ -220,13 +220,13 @@ export default function RegistrationForm() {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.7 + (i * 0.1), duration: 0.5 }}
                 whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
-                className="glass rounded-2xl p-8 flex flex-col items-center justify-center gap-3 border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]"
+                className="glass rounded-2xl p-6 md:p-8 flex flex-col items-center justify-center gap-3 border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]"
               >
                 <div className="flex flex-col items-center gap-2">
                   <span className="text-white/40 uppercase tracking-widest text-[10px] font-bold">
                     {stat.label}
                   </span>
-                  <span className="text-4xl md:text-5xl font-bold text-white font-syne tracking-tighter">
+                  <span className="text-3xl md:text-5xl font-bold text-white font-syne tracking-tighter">
                     {stat.value !== null ? stat.value : "..."}
                   </span>
                 </div>
@@ -238,7 +238,7 @@ export default function RegistrationForm() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.2, duration: 0.8 }}
-            className="flex flex-col items-center gap-8"
+            className="flex flex-col items-center gap-6 md:gap-8"
           >
             {/* Social Links */}
             <div className="flex items-center gap-4">
@@ -266,7 +266,7 @@ export default function RegistrationForm() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={scrollToForm}
-                className="font-syne px-12 py-4 bg-gradient-to-r from-purple-600 to-orange-500 text-white rounded-full transition-all duration-300 uppercase tracking-widest text-[11px] font-bold shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)]"
+                className="font-syne px-8 md:px-12 py-3 md:py-4 bg-gradient-to-r from-purple-600 to-orange-500 text-white rounded-full transition-all duration-300 uppercase tracking-widest text-[11px] font-bold shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)]"
               >
                 <span className="relative z-10 flex items-center justify-center gap-2">
                   Register Now
@@ -281,7 +281,7 @@ export default function RegistrationForm() {
 
               <Link
                 to="/admin/login"
-                className="font-syne px-8 py-4 glass border border-white/10 text-white/60 hover:text-white hover:border-white/30 rounded-full transition-all duration-500 uppercase tracking-widest text-[10px] font-bold"
+                className="font-syne px-6 md:px-8 py-3 md:py-4 glass border border-white/10 text-white/60 hover:text-white hover:border-white/30 rounded-full transition-all duration-500 uppercase tracking-widest text-[10px] font-bold"
               >
                 Admin Gateway
               </Link>
