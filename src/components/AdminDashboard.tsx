@@ -64,6 +64,8 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState<{ present: number; absent: number }>({ present: 0, absent: 0 });
   const [showPayAllModal, setShowPayAllModal] = useState(false);
   const [selectedReg, setSelectedReg] = useState<{ id: string; name: string } | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedDeleteReg, setSelectedDeleteReg] = useState<{ id: string; name: string } | null>(null);
   
   const navigate = useNavigate();
 
@@ -366,18 +368,26 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this registration?")) return;
+  const handleDelete = (id: string, name: string) => {
+    setSelectedDeleteReg({ id, name });
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!selectedDeleteReg) return;
 
     try {
       const { error } = await supabase
         .from("registrations")
         .delete()
-        .eq("id", id);
+        .eq("id", selectedDeleteReg.id);
 
       if (error) throw error;
 
       toast.success("Registration deleted");
+      setShowDeleteModal(false);
+      setSelectedDeleteReg(null);
+
       if (registrations.length === 1 && currentPage > 1) {
         setCurrentPage(currentPage - 1);
       } else {
@@ -722,7 +732,7 @@ export default function AdminDashboard() {
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button
-                                onClick={() => handleDelete(registration.id)}
+                                onClick={() => handleDelete(registration.id, registration.full_name)}
                                 className="p-2 hover:text-red-400 transition-colors"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -798,6 +808,45 @@ export default function AdminDashboard() {
                 className="flex-1 px-8 py-4 bg-white text-black rounded-full text-xs font-bold uppercase tracking-[0.2em] hover:bg-purple-500 hover:text-white transition-all shadow-xl"
               >
                 Confirm Payment
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && selectedDeleteReg && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
+            onClick={() => setShowDeleteModal(false)}
+          />
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="glass rounded-[2rem] p-12 w-full max-w-xl relative z-10 shadow-2xl text-center"
+          >
+            <Trash2 className="w-16 h-16 text-red-400 mx-auto mb-8" />
+            <h3 className="text-3xl font-bold font-syne tracking-tighter text-white mb-4">
+              Confirm Deletion
+            </h3>
+            <p className="text-white/50 text-lg font-light mb-12">
+              Are you sure you want to remove <span className="text-white font-bold">{selectedDeleteReg.name}</span>? This action cannot be undone.
+            </p>
+
+            <div className="flex flex-col md:flex-row gap-4">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 px-8 py-4 glass rounded-full text-xs font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-all"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-8 py-4 bg-red-500 text-white rounded-full text-xs font-bold uppercase tracking-[0.2em] hover:bg-red-600 transition-all shadow-xl shadow-red-500/20"
+              >
+                Confirm Deletion
               </button>
             </div>
           </motion.div>
