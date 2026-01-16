@@ -15,7 +15,7 @@ export default function Footer() {
             </div>
             <div>
                 <h4 className="text-white text-lg font-bold font-syne tracking-tighter mb-1">
-                    Nyanya <span className="text-purple-400">Youths</span>
+                    Nyanya Assembly <span className="text-purple-400">Youths</span>
                 </h4>
                 <p className="text-white/20 text-[10px] uppercase font-bold tracking-[0.2em]">
                     The Apostolic Church Nigeria

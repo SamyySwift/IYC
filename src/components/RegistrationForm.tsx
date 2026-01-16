@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { Users, Facebook, Instagram, Youtube, CheckCircle, XCircle } from "lucide-react";
 import toast from "react-hot-toast";
@@ -37,6 +37,12 @@ export default function RegistrationForm() {
     reset,
     formState: { errors },
   } = useForm<RegistrationFormData>();
+
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const scrollToForm = () => {
+    formRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
     fetchRegistrationCount();
@@ -180,7 +186,7 @@ export default function RegistrationForm() {
             </motion.div>
             
             <motion.h1 
-              className="font-bold font-syne text-5xl md:text-9xl text-center leading-[0.9] tracking-tighter text-white"
+              className="font-bold font-syne text-5xl md:text-8xl text-center leading-[0.9] tracking-tighter text-white"
             >
               <motion.span 
                 initial={{ opacity: 0, y: 100 }}
@@ -188,13 +194,13 @@ export default function RegistrationForm() {
                 transition={{ duration: 1, delay: 0.4, ease: [0.215, 0.61, 0.355, 1] }}
                 className="block"
               >
-                Nyanya
+                Nyanya Assembly
               </motion.span>
               <motion.span 
                 initial={{ opacity: 0, y: 100 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 1, delay: 0.5, ease: [0.215, 0.61, 0.355, 1] }}
-                className="block bg-gradient-to-r from-purple-400 via-orange-300 to-purple-400 bg-clip-text text-transparent"
+                className="block bg-gradient-to-r from-purple-600 via-orange-300 to-purple-600 bg-clip-text text-transparent"
               >
                 Youths
               </motion.span>
@@ -255,17 +261,28 @@ export default function RegistrationForm() {
               ))}
             </div>
 
-            <Link
-              to="/admin/login"
-              className="font-syne px-8 py-3 glass border border-white/10 text-white/60 hover:text-white hover:border-white/30 rounded-full transition-all duration-500 uppercase tracking-widest text-[10px] font-bold"
-            >
-              Admin Gateway
-            </Link>
+            <div className="flex flex-col md:flex-row items-center gap-4">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={scrollToForm}
+                className="font-syne px-12 py-4 bg-gradient-to-r from-purple-600 to-orange-500 text-white rounded-full transition-all duration-300 uppercase tracking-widest text-[11px] font-bold shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)]"
+              >
+                Register Now
+              </motion.button>
+
+              <Link
+                to="/admin/login"
+                className="font-syne px-8 py-4 glass border border-white/10 text-white/60 hover:text-white hover:border-white/30 rounded-full transition-all duration-500 uppercase tracking-widest text-[10px] font-bold"
+              >
+                Admin Gateway
+              </Link>
+            </div>
           </motion.div>
         </motion.div>
       </ImagesSlider>
       
-      <div className="relative py-32 bg-[#0A0A0A]">
+      <div ref={formRef} className="relative py-32 bg-[#0A0A0A]">
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-2xl mx-auto">
             <motion.div 
