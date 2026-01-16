@@ -158,244 +158,232 @@ export default function RegistrationForm() {
   };
 
   return (
-    <div className="">
-      <ImagesSlider className="h-[50rem] relative w-full mb-0" images={images}>
+    <div className="relative min-h-screen bg-[#0A0A0A] selection:bg-purple-500/30 overflow-x-hidden">
+      <div className="noise-overlay" />
+      
+      <ImagesSlider className="h-screen relative w-full mb-0" images={images}>
         <motion.div
-          initial={{ opacity: 0, y: -80 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="z-50 flex flex-col justify-center items-center gap-6 w-full px-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.5 }}
+          className="z-50 flex flex-col justify-center items-center gap-12 w-full px-4"
         >
-          <motion.h1 
-            className="font-bold font-chillax text-4xl md:text-7xl text-center bg-clip-text text-transparent bg-gradient-to-r from-purple-200 via-white to-orange-200 drop-shadow-2xl py-4"
-          >
-            Nyanya Assembly<br/>
-            <span className="text-3xl md:text-6xl text-white/90">Youth Movement</span>
-          </motion.h1>
+          <div className="text-center space-y-4">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.215, 0.61, 0.355, 1] }}
+            >
+              <h2 className="text-purple-400 font-medium tracking-[0.2em] uppercase text-sm mb-4">
+                Since 2026
+              </h2>
+            </motion.div>
+            
+            <motion.h1 
+              className="font-bold font-syne text-5xl md:text-9xl text-center leading-[0.9] tracking-tighter text-white"
+            >
+              <motion.span 
+                initial={{ opacity: 0, y: 100 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.4, ease: [0.215, 0.61, 0.355, 1] }}
+                className="block"
+              >
+                Nyanya
+              </motion.span>
+              <motion.span 
+                initial={{ opacity: 0, y: 100 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1, delay: 0.5, ease: [0.215, 0.61, 0.355, 1] }}
+                className="block bg-gradient-to-r from-purple-400 via-orange-300 to-purple-400 bg-clip-text text-transparent"
+              >
+                Youths
+              </motion.span>
+            </motion.h1>
+          </div>
           
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-2 items-stretch w-[90%] md:w-full max-w-4xl mx-auto">
-            {/* Total Youths */}
-            <motion.div 
-               initial={{ opacity: 0, y: 20 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ delay: 0.2 }}
-               whileHover={{ scale: 1.05 }}
-               className="bg-white/5 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center justify-center gap-2 border border-white/10 shadow-xl hover:bg-white/10 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                  <div className="p-3 bg-purple-500/20 rounded-full">
-                    <Users className="w-6 h-6 text-purple-300" />
-                  </div>
-                  <span className="text-white/70 font-medium text-lg">Total Youths</span>
-              </div>
-              <span className="text-4xl md:text-5xl font-bold text-white font-chillax tracking-tight">
-                {registrationCount !== null ? registrationCount : "..."}
-              </span>
-            </motion.div>
-
-             {/* Present */}
-             <motion.div 
-               initial={{ opacity: 0, y: 20 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ delay: 0.3 }}
-               whileHover={{ scale: 1.05 }}
-               className="bg-green-900/10 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center justify-center gap-2 border border-green-500/20 shadow-xl hover:bg-green-900/20 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                  <div className="p-3 bg-green-500/20 rounded-full">
-                    <CheckCircle className="w-6 h-6 text-green-400" />
-                  </div>
-                  <span className="text-green-100/70 font-medium text-lg">Present Today</span>
-              </div>
-              <span className="text-4xl md:text-5xl font-bold text-green-400 font-chillax tracking-tight">
-                {attendanceStats.present}
-              </span>
-            </motion.div>
-
-             {/* Absent */}
-             <motion.div 
-               initial={{ opacity: 0, y: 20 }}
-               animate={{ opacity: 1, y: 0 }}
-               transition={{ delay: 0.4 }}
-               whileHover={{ scale: 1.05 }}
-               className="bg-red-900/10 backdrop-blur-md rounded-2xl p-6 flex flex-col items-center justify-center gap-2 border border-red-500/20 shadow-xl hover:bg-red-900/20 transition-colors"
-             >
-              <div className="flex items-center gap-3">
-                  <div className="p-3 bg-red-500/20 rounded-full">
-                    <XCircle className="w-6 h-6 text-red-400" />
-                  </div>
-                  <span className="text-red-100/70 font-medium text-lg">Absent Today</span>
-              </div>
-              <span className="text-4xl md:text-5xl font-bold text-red-400 font-chillax tracking-tight">
-                {attendanceStats.absent}
-              </span>
-            </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch w-full max-w-5xl mx-auto px-4">
+            {[
+              { label: "Total Youths", value: registrationCount, icon: Users, color: "purple" },
+              { label: "Present Today", value: attendanceStats.present, icon: CheckCircle, color: "green" },
+              { label: "Absent Today", value: attendanceStats.absent, icon: XCircle, color: "red" }
+            ].map((stat, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.7 + (i * 0.1), duration: 0.5 }}
+                whileHover={{ y: -5, backgroundColor: "rgba(255, 255, 255, 0.08)" }}
+                className="glass rounded-2xl p-8 flex flex-col items-center justify-center gap-3 border border-white/5 shadow-[0_8px_32px_0_rgba(0,0,0,0.36)]"
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-white/40 uppercase tracking-widest text-[10px] font-bold">
+                    {stat.label}
+                  </span>
+                  <span className="text-4xl md:text-5xl font-bold text-white font-syne tracking-tighter">
+                    {stat.value !== null ? stat.value : "..."}
+                  </span>
+                </div>
+              </motion.div>
+            ))}
           </div>
 
-          {/* Social Links */}
           <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
-            transition={{ delay: 0.6 }}
-            className="flex items-center gap-6 mb-4"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 1.2, duration: 0.8 }}
+            className="flex flex-col items-center gap-8"
           >
-            {[
-              { Icon: Facebook, href: "https://www.facebook.com/share/1CfaQQBxVB/?mibextid=wwXIfr" },
-              { Icon: Instagram, href: "https://www.instagram.com/tacn_na?igsh=dDhxcmplNzVzZDNw" },
-              { Icon: Youtube, href: "https://youtube.com/@tacn_na" }
-            ].map(({ Icon, href }, i) => (
-              <a
-                key={i}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-white/60 hover:text-white p-3 rounded-full bg-white/5 hover:bg-white/20 transition-all duration-300 transform hover:-translate-y-1 hover:scale-110 border border-white/5"
-              >
-                <Icon className="w-6 h-6" />
-              </a>
-            ))}
-          </motion.div>
-  
+            {/* Social Links */}
+            <div className="flex items-center gap-4">
+              {[
+                { Icon: Facebook, href: "https://www.facebook.com/share/1CfaQQBxVB/?mibextid=wwXIfr" },
+                { Icon: Instagram, href: "https://www.instagram.com/tacn_na?igsh=dDhxcmplNzVzZDNw" },
+                { Icon: Youtube, href: "https://youtube.com/@tacn_na" }
+              ].map(({ Icon, href }, i) => (
+                <motion.a
+                  key={i}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.1)" }}
+                  whileTap={{ scale: 0.95 }}
+                  className="text-white/40 hover:text-white p-4 rounded-full glass border border-white/5 transition-colors"
+                >
+                  <Icon className="w-5 h-5" />
+                </motion.a>
+              ))}
+            </div>
+
             <Link
               to="/admin/login"
-              className="font-chillax px-6 py-2 mb-4 backdrop-blur-md border bg-white/5 border-white/10 text-white/80 hover:text-white hover:bg-white/10 mx-auto text-center rounded-lg transition-all duration-300 relative group overflow-hidden"
+              className="font-syne px-8 py-3 glass border border-white/10 text-white/60 hover:text-white hover:border-white/30 rounded-full transition-all duration-500 uppercase tracking-widest text-[10px] font-bold"
             >
-              <span className="relative z-10 font-medium tracking-wide">Admin Access</span>
-              <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-purple-500 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
+              Admin Gateway
             </Link>
           </motion.div>
+        </motion.div>
       </ImagesSlider>
       
-      <div className="min-h-screen">
-        <div className="container mx-auto px-4 py-24 relative z-10">
-          <div className="max-w-2xl mx-auto font-chillax">
-             {/* Use a wrapper for the form to give it stronger isolation */}
+      <div className="relative py-32 bg-[#0A0A0A]">
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-2xl mx-auto">
             <motion.div 
-               initial={{ opacity: 0, y: 50 }}
-               whileInView={{ opacity: 1, y: 0 }}
-               viewport={{ once: true }}
-               transition={{ duration: 0.8 }}
-               className="bg-black/40 backdrop-blur-2xl rounded-3xl p-8 md:p-12 shadow-2xl border border-white/10 relative overflow-hidden"
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 1, ease: [0.215, 0.61, 0.355, 1] }}
+              className="glass rounded-[2rem] p-8 md:p-16 shadow-[0_24px_64px_-12px_rgba(0,0,0,0.5)] border border-white/5 relative overflow-hidden"
             >
-                 {/* Decorative background gradients within the card */}
-                 <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
-                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[120px] -mr-64 -mt-64 pointer-events-none" />
+              <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-orange-500/5 rounded-full blur-[120px] -ml-64 -mb-64 pointer-events-none" />
 
-              <div className="text-center mb-10">
-                <h2 className="text-3xl font-bold text-white mb-2">Join Us</h2>
-                <p className="text-white/50">Complete the form below to register.</p>
+              <div className="text-center mb-16 relative">
+                <motion.span 
+                  initial={{ opacity: 0 }}
+                  whileInView={{ opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="text-purple-400 text-xs font-bold uppercase tracking-[0.3em] mb-4 block"
+                >
+                  Registration
+                </motion.span>
+                <h2 className="text-4xl md:text-5xl font-bold text-white font-syne tracking-tighter">
+                  Start Your Journey
+                </h2>
               </div>
 
               <form
                 onSubmit={handleSubmit(onSubmit)}
-                className="space-y-6 relative z-10"
+                className="space-y-8 relative z-10"
               >
-                <div className="space-y-6">
-                  <div className="group">
-                    <label className="block text-white/70 mb-2 text-sm font-medium ml-1">Full Name</label>
-                    <input
-                      {...register("fullName", {
-                        required: "Full name is required",
-                      })}
-                      className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light"
-                      placeholder="Enter your full name"
-                    />
-                    {errors.fullName && (
-                      <p className="text-red-400 text-sm mt-2 ml-1">
-                        {errors.fullName.message}
-                      </p>
-                    )}
-                  </div>
-  
-                  <div className="group">
-                    <label className="block text-white/70 mb-2 text-sm font-medium ml-1">Email Address</label>
-                    <input
-                      type="email"
-                      {...register("email", { required: "Email is required" })}
-                      className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light"
-                      placeholder="Start with your email"
-                    />
-                    {errors.email && (
-                      <p className="text-red-400 text-sm mt-2 ml-1">{errors.email.message}</p>
-                    )}
-                  </div>
-  
-                  <div className="group">
-                    <label className="block text-white/70 mb-2 text-sm font-medium ml-1">Phone Number</label>
-                    <input
-                      type="tel"
-                      {...register("phone", {
-                        required: "Phone number is required",
-                      })}
-                      className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light"
-                      placeholder="+233..."
-                    />
-                    {errors.phone && (
-                      <p className="text-red-400 text-sm mt-2 ml-1">{errors.phone.message}</p>
-                    )}
-                  </div>
-  
-                  <div className="group">
-                    <label className="block text-white/70 mb-2 text-sm font-medium ml-1">Gender</label>
-                    <div className="relative">
+                <div className="space-y-8">
+                  {[
+                    { id: "fullName", label: "Full Name", placeholder: "Your name", type: "text" },
+                    { id: "email", label: "Email Address", placeholder: "Email address", type: "email" },
+                    { id: "phone", label: "Phone Number", placeholder: "+234...", type: "tel" }
+                  ].map((field, i) => (
+                    <motion.div 
+                      key={field.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.2 + (i * 0.1) }}
+                      className="group relative"
+                    >
+                      <label className="block text-white/30 mb-3 text-[10px] font-bold uppercase tracking-widest ml-1 transition-colors group-focus-within:text-purple-400">
+                        {field.label}
+                      </label>
+                      <input
+                        type={field.type}
+                        {...register(field.id as any, { 
+                          required: `${field.label} is required`,
+                          ...(field.id === "email" ? { pattern: { value: /^\S+@\S+$/i, message: "Invalid email" } } : {})
+                        })}
+                        className="w-full px-0 py-3 bg-transparent border-b border-white/10 text-white placeholder-white/10 focus:outline-none focus:border-purple-500 transition-all font-light text-lg"
+                        placeholder={field.placeholder}
+                      />
+                      {(errors as any)[field.id] && (
+                        <p className="text-red-400 text-[10px] uppercase font-bold tracking-wider mt-2 ml-1">
+                          {(errors as any)[field.id].message}
+                        </p>
+                      )}
+                    </motion.div>
+                  ))}
+   
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.5 }}
+                      className="group"
+                    >
+                      <label className="block text-white/30 mb-3 text-[10px] font-bold uppercase tracking-widest ml-1 transition-colors group-focus-within:text-purple-400">Gender</label>
                       <select
                         {...register("gender", { required: "Gender is required" })}
-                        className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light appearance-none cursor-pointer"
+                        className="w-full px-0 py-3 bg-transparent border-b border-white/10 text-white focus:outline-none focus:border-purple-500 transition-all font-light text-lg appearance-none cursor-pointer"
                         defaultValue=""
                       >
-                        <option value="" disabled className="bg-[#1a1a1a] text-white/50">
-                          Select Gender
-                        </option>
-                        <option value="Male" className="bg-[#1a1a1a]">Male</option>
-                        <option value="Female" className="bg-[#1a1a1a]">Female</option>
+                        <option value="" disabled className="bg-[#0A0A0A] text-white/20">Select Gender</option>
+                        <option value="Male" className="bg-[#0A0A0A]">Male</option>
+                        <option value="Female" className="bg-[#0A0A0A]">Female</option>
                       </select>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/30">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                    </div>
-                    {errors.gender && (
-                      <p className="text-red-400 text-sm mt-2 ml-1">{errors.gender.message}</p>
-                    )}
-                  </div>
+                    </motion.div>
 
-                  <div className="group">
-                    <label className="block text-white/70 mb-2 text-sm font-medium ml-1">New Youth Member?</label>
-                    <div className="relative">
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.6 }}
+                      className="group"
+                    >
+                      <label className="block text-white/30 mb-3 text-[10px] font-bold uppercase tracking-widest ml-1 transition-colors group-focus-within:text-purple-400">New Member?</label>
                       <select
                         {...register("isNewMember", { required: "Please select an option" })}
-                        className="w-full px-5 py-3.5 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:bg-white/10 transition-all font-light appearance-none cursor-pointer"
+                        className="w-full px-0 py-3 bg-transparent border-b border-white/10 text-white focus:outline-none focus:border-purple-500 transition-all font-light text-lg appearance-none cursor-pointer"
                         defaultValue="No"
                       >
-                         <option value="No" className="bg-[#1a1a1a]">No</option>
-                         <option value="Yes" className="bg-[#1a1a1a]">Yes</option>
+                        <option value="No" className="bg-[#0A0A0A]">No</option>
+                        <option value="Yes" className="bg-[#0A0A0A]">Yes</option>
                       </select>
-                      <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/30">
-                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                        </svg>
-                      </div>
-                    </div>
-                    {errors.isNewMember && (
-                      <p className="text-red-400 text-sm mt-2 ml-1">{errors.isNewMember.message}</p>
-                    )}
+                    </motion.div>
                   </div>
-  
-                  <button
+   
+                  <motion.button
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.8 }}
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full group relative overflow-hidden bg-gradient-to-r from-purple-600 to-orange-600 hover:from-purple-500 hover:to-orange-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 shadow-lg shadow-purple-500/20 disabled:opacity-70 disabled:cursor-not-allowed mt-4 transform hover:translate-y-[-2px]"
+                    className="w-full group relative h-16 bg-white text-black font-bold uppercase tracking-[0.2em] text-xs rounded-full transition-all duration-300 hover:bg-purple-500 hover:text-white disabled:opacity-50 mt-8 overflow-hidden"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
-                       {isSubmitting ? "Registering..." : "Complete Registration"}
-                       {!isSubmitting && (
-                         <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                       )}
+                       {isSubmitting ? "Processing..." : "Submit Registration"}
                     </span>
-                    <div className="absolute inset-0 bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
-                  </button>
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                  </motion.button>
                 </div>
               </form>
             </motion.div>
@@ -411,15 +399,16 @@ const images = [
   "/images/youth_9.jpeg",
   "images/image.avif",
   "images/image_3.jpg",
-  "/images/youth_1.jpg",
-  "/images/youth_2.jpg",
+  "/images/youth_1.png",
+  "/images/youth_2.png",
    "images/image_4.jpg",
-  "/images/solo.jpg",
-  "/images/youth_3.jpg",
-  "/images/youth_4.jpg",
-  "/images/youth_10.jpg",
-  "/images/youth_5.jpg",
-  "/images/youth_6.jpg",
-  "/images/youth_7.jpg",
-  "/images/youth_8.jpg"
+  "/images/solo.png",
+   "/images/youth_12.png",
+  "/images/youth_3.png",
+  "/images/youth_4.png",
+  "/images/youth_5.png",
+  "/images/youth_6.png",
+  "/images/youth_7.png",
+  "/images/youth_8.jpg",
+   "/images/youth_11.jpeg"
 ];

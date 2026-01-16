@@ -15,10 +15,10 @@ import {
   MinusCircle,
   CreditCard,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { motion } from "framer-motion"; // Corrected import based on common usage and context
 import toast from "react-hot-toast";
 import { supabase } from "../lib/supabase";
-import { Link } from "react-router-dom";
 import { format, isSunday, addDays, startOfMonth } from "date-fns";
 
 interface Registration {
@@ -431,9 +431,6 @@ export default function AdminDashboard() {
     }
   };
 
-  const inputStyle =
-    "bg-transparent border border-white/30 rounded px-2 py-1 w-full text-white/90 focus:outline-none focus:ring-1 focus:ring-blue-500";
-
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   const handlePreviousPage = () => {
@@ -449,42 +446,42 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8 font-chillax">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-        <div className="flex flex-col items-center md:items-start gap-1">
-          <h1 className="text-2xl md:text-3xl font-bold text-white max-w-xs">
-            Admin Dashboard
-          </h1>
-          {adminEmail && (
-            <p className="text-white/50 text-xs md:text-sm font-medium">
-              Logged in as: <span className="text-white/80">{adminEmail}</span>
-            </p>
-          )}
-        </div>
-        
-        <div className="flex flex-wrap gap-4 items-center justify-center">
+    <div className="min-h-screen bg-[#0A0A0A] font-inter text-white relative">
+      <div className="noise-overlay" />
+      
+      <div className="container mx-auto px-4 py-16 relative z-10">
+        {/* Header */}
+        <header className="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
+          <div className="text-center md:text-left">
+            <h1 className="text-4xl md:text-6xl font-bold font-syne tracking-tighter mb-2">
+              Management <span className="text-purple-400">Hub</span>
+            </h1>
+            {adminEmail && (
+              <p className="text-white/30 text-xs font-bold uppercase tracking-widest">
+                Session Active: <span className="text-white/60">{adminEmail}</span>
+              </p>
+            )}
+          </div>
+          
+          <div className="flex flex-wrap gap-4 items-center justify-center">
              {/* Filter Dropdown */}
-            <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
-                <Filter className="w-4 h-4 text-white/70" />
+            <div className="glass rounded-full px-6 py-3 flex items-center gap-3">
+                <Filter className="w-4 h-4 text-white/30" />
                 <select 
                     value={filterStatus}
                     onChange={(e) => {
                         setFilterStatus(e.target.value as FilterStatus);
-                        setCurrentPage(1); // Reset page on filter change
+                        setCurrentPage(1);
                     }}
-                    className="bg-transparent text-white focus:outline-none [&>option]:text-black"
+                    className="bg-transparent text-sm font-bold uppercase tracking-widest focus:outline-none [&>option]:text-black cursor-pointer"
                 >
                     <option value="All">All Status</option>
                     <option value="Present">Attendance: Present</option>
                     <option value="Absent">Attendance: Absent</option>
                     <option value="Unmarked">Attendance: Unmarked</option>
-                     <hr />
                     <option value="Paid">Payment: Paid</option>
                     <option value="Unpaid">Payment: Unpaid</option>
-                     <hr />
                     <option value="New Member">New Members</option>
-                    <hr />
                     <option value="Group 1">Group 1</option>
                     <option value="Group 2">Group 2</option>
                     <option value="Group 3">Group 3</option>
@@ -493,380 +490,317 @@ export default function AdminDashboard() {
             </div>
 
              {/* Date Picker */}
-            <div className="flex items-center gap-2 bg-white/10 rounded-lg px-3 py-2">
-                <Calendar className="w-4 h-4 text-white/70" />
+            <div className="glass rounded-full px-6 py-3 flex items-center gap-3">
+                <Calendar className="w-4 h-4 text-white/30" />
                 <input 
                     type="date" 
                     value={attendanceDate}
                     onChange={(e) => setAttendanceDate(e.target.value)}
-                    className="bg-transparent text-white focus:outline-none"
+                    className="bg-transparent text-sm font-bold uppercase tracking-widest focus:outline-none cursor-pointer"
                 />
             </div>
             
-            <Link
-                to="/"
-                className="flex items-center gap-2 bg-gray-500 text-white rounded-lg px-4 py-2 hover:bg-gray-700 transition-colors"
-            >
-                <Home className="w-4 h-4" />
-                Home
-            </Link>
-            <button
-                onClick={handleLogout}
-                className="flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors"
-            >
-                <LogOut className="w-4 h-4" />
-                Logout
-            </button>
+            <div className="flex gap-2">
+              <Link
+                  to="/"
+                  className="glass p-3 rounded-full hover:bg-white/10 transition-colors"
+                  title="Home"
+              >
+                  <Home className="w-5 h-5" />
+              </Link>
+              <button
+                  onClick={handleLogout}
+                  className="glass p-3 rounded-full hover:bg-red-500/20 text-red-400 transition-colors"
+                  title="Logout"
+              >
+                  <LogOut className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </header>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 px-4 md:px-0">
+            {[
+              { label: "Total Registrations", value: totalCount, color: "white" },
+              { label: "Present Today", value: stats.present, color: "green" },
+              { label: "Absent Today", value: stats.absent, color: "red" }
+            ].map((stat, i) => (
+              <div key={i} className="glass rounded-2xl p-8 border border-white/5 relative overflow-hidden group">
+                <div className="relative z-10 lowercase">
+                  <h3 className="text-white/30 text-xs font-bold uppercase tracking-widest mb-2">{stat.label}</h3>
+                  <p className="text-5xl font-bold font-syne tracking-tighter transition-transform duration-500 group-hover:scale-110 origin-left">
+                    {stat.value}
+                  </p>
+                </div>
+              </div>
+            ))}
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white/10 backdrop-blur-md rounded-xl p-6 shadow-lg border border-white/10">
-              <h3 className="text-white/60 text-sm font-medium mb-1">Total Registrations</h3>
-              <p className="text-3xl font-bold text-white">{totalCount}</p>
-          </div>
-          <div className="bg-green-500/10 backdrop-blur-md rounded-xl p-6 shadow-lg border border-green-500/20">
-              <h3 className="text-green-300/80 text-sm font-medium mb-1">Present Today</h3>
-              <p className="text-3xl font-bold text-green-400">{stats.present}</p>
-          </div>
-          <div className="bg-red-500/10 backdrop-blur-md rounded-xl p-6 shadow-lg border border-red-500/20">
-              <h3 className="text-red-300/80 text-sm font-medium mb-1">Absent Today</h3>
-              <p className="text-3xl font-bold text-red-400">{stats.absent}</p>
-          </div>
-      </div>
-
-      {/* Table Container */}
-      {/* Use a wrapper for the form to give it stronger isolation */}
-      <div className="bg-black/40 backdrop-blur-2xl rounded-3xl p-6 relative z-10 overflow-hidden border border-white/10 shadow-2xl mb-8">
-         {/* Decorative background gradients within the card */}
-         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none" />
-         <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-500/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none" />
-
-        <div className="relative z-10 overflow-x-auto h-full">
-          <table className="w-full min-w-[1000px]">
-          <thead>
-            <tr className="text-white border-b border-white/20">
-              <th className="text-left py-3 px-4">Name</th>
-              <th className="text-left py-3 px-4">Email</th>
-              <th className="text-left py-3 px-4">Phone</th>
-              <th className="text-left py-3 px-4">Gender</th>
-              <th className="text-center py-3 px-4">New Member?</th>
-              <th className="text-center py-3 px-4">Group</th>
-              <th className="text-left py-3 px-4">Payment Status</th>
-               <th className="text-center py-3 px-4">Attendance</th>
-              <th className="text-left py-3 px-4 min-w-[120px]">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={9} className="text-center py-10 text-white/70">
-                  Loading registrations...
-                </td>
-              </tr>
-            ) : registrations.length === 0 ? (
-              <tr>
-                <td colSpan={9} className="text-center py-10 text-white/70">
-                  No registrations found.
-                </td>
-              </tr>
-            ) : (
-              registrations.map((registration) =>
-                editingId === registration.id ? (
-                  // --- Edit Row ---
-                  <tr
-                    key={registration.id}
-                    className="text-white/90 border-b border-white/10 bg-blue-900/20"
-                  >
-                    <td className="py-2 px-4">
-                      <input
-                        type="text"
-                        name="full_name"
-                        value={editFormData?.full_name || ""}
-                        onChange={handleEditFormChange}
-                        className={inputStyle}
-                      />
+        {/* Table Section */}
+        <div className="glass rounded-[2rem] p-1 border border-white/5 shadow-2xl relative overflow-hidden">
+          <div className="overflow-x-auto p-4 md:p-8">
+            <table className="w-full min-w-[1000px] border-separate border-spacing-y-4">
+              <thead>
+                <tr className="text-white/30 text-[10px] uppercase font-bold tracking-[0.2em]">
+                  <th className="text-left py-4 px-6">Name</th>
+                  <th className="text-left py-4 px-6">Contact Details</th>
+                  <th className="text-center py-4 px-6">New member?</th>
+                  <th className="text-center py-4 px-6">Group</th>
+                  <th className="text-center py-4 px-6">Payment</th>
+                  <th className="text-center py-4 px-6">Attendance</th>
+                  <th className="text-right py-4 px-6">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-20 text-white/20 animate-pulse uppercase tracking-[0.3em] text-xs">
+                      Synchronizing Data...
                     </td>
-                    <td className="py-2 px-4">
-                      <input
-                        type="email"
-                        name="email"
-                        value={editFormData?.email || ""}
-                        onChange={handleEditFormChange}
-                        className={inputStyle}
-                      />
-                    </td>
-                    <td className="py-2 px-4">
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={editFormData?.phone || ""}
-                        onChange={handleEditFormChange}
-                        className={inputStyle}
-                      />
-                    </td>
-                    <td className="py-2 px-4">
-                      <input
-                        type="text"
-                        name="gender"
-                        value={editFormData?.gender || ""}
-                        onChange={handleEditFormChange}
-                        className={inputStyle}
-                      />
-                    </td>
-                    <td className="py-2 px-4 text-center">
-                       <input
-                        type="checkbox"
-                        name="is_new_member"
-                        checked={editFormData?.is_new_member || false}
-                        onChange={(e) => {
-                            if (editFormData) {
-                                setEditFormData({ ...editFormData, is_new_member: e.target.checked });
-                            }
-                        }}
-                        className="w-5 h-5 accent-purple-500"
-                      />
-                    </td>
-                    <td className="py-2 px-4">
-                      <select
-                        name="group_number"
-                        value={editFormData?.group_number || ""}
-                        onChange={(e) => {
-                             if (editFormData) {
-                                setEditFormData({ 
-                                    ...editFormData, 
-                                    group_number: e.target.value ? parseInt(e.target.value) : null 
-                                });
-                            }
-                        }}
-                        className={`${inputStyle} bg-blue-900/50 [&>option]:text-black`}
-                      >
-                        <option value="">None</option>
-                        <option value="1">Group 1</option>
-                        <option value="2">Group 2</option>
-                        <option value="3">Group 3</option>
-                        <option value="4">Group 4</option>
-                      </select>
-                    </td>
-                    <td className="py-2 px-4">
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm ${
-                          paidMap[registration.id]
-                            ? "bg-green-500/20 text-green-300"
-                            : "bg-red-500/20 text-red-300"
-                        }`}
-                      >
-                        {paidMap[registration.id] ? "Paid" : "Unpaid"}
-                      </span>
-                    </td>
-                    <td className="py-2 px-4 text-center text-white/30">
-                        (Edit Mode)
-                    </td>
-                    <td className="py-2 px-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleSaveClick(registration.id)}
-                          className="p-2 hover:bg-green-500/20 rounded-lg transition-colors"
-                          title="Save Changes"
-                        >
-                          <Save className="w-4 h-4 text-green-400" />
-                        </button>
-                        <button
-                          onClick={handleCancelClick}
-                          className="p-2 hover:bg-gray-500/20 rounded-lg transition-colors"
-                          title="Cancel Edit"
-                        >
-                          <X className="w-4 h-4 text-gray-400" />
-                        </button>
-                      </div>
+                  </tr>
+                ) : registrations.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-20 text-white/20 uppercase tracking-[0.3em] text-xs">
+                      No Records Discovered
                     </td>
                   </tr>
                 ) : (
-                  // --- Display Row ---
-                  <tr
-                    key={registration.id}
-                    className="text-white/90 border-b border-white/10 hover:bg-white/5 transition-colors"
-                  >
-                    <td className="py-3 px-4">{registration.full_name}</td>
-                    <td className="py-3 px-4">{registration.email}</td>
-                    <td className="py-3 px-4">{registration.phone}</td>
-                    <td className="py-3 px-4">{registration.gender}</td>
-                    <td className="py-3 px-4 text-center">
-                        {registration.is_new_member ? (
-                            <span className="bg-purple-500/20 text-purple-300 px-2 py-1 rounded-full text-xs">Yes</span>
-                        ) : (
-                             <span className="text-white/30 text-xs">No</span>
-                        )}
-                    </td>
-                    <td className="py-3 px-4 text-center">
-                        {registration.group_number ? (
-                            <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded-full text-xs">
-                                Group {registration.group_number}
+                  registrations.map((registration) => (
+                    <motion.tr
+                      key={registration.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`group transition-all duration-300 ${
+                        editingId === registration.id ? "bg-purple-500/5 ring-1 ring-purple-500/20" : ""
+                      }`}
+                    >
+                      {editingId === registration.id ? (
+                        <>
+                          <td className="py-4 px-6">
+                            <input
+                              type="text"
+                              name="full_name"
+                              value={editFormData?.full_name || ""}
+                              onChange={handleEditFormChange}
+                              className="bg-white/5 border-b border-purple-500/50 w-full py-1 px-1 focus:outline-none text-white"
+                            />
+                          </td>
+                          <td className="py-4 px-6">
+                            <input
+                                type="email"
+                                name="email"
+                                value={editFormData?.email || ""}
+                                onChange={handleEditFormChange}
+                                className="bg-white/5 border-b border-white/10 w-full py-1 px-1 focus:outline-none text-white text-sm mb-1 block"
+                            />
+                            <input
+                                type="tel"
+                                name="phone"
+                                value={editFormData?.phone || ""}
+                                onChange={handleEditFormChange}
+                                className="bg-white/5 border-b border-white/10 w-full py-1 px-1 focus:outline-none text-white text-sm block"
+                            />
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            <input
+                              type="checkbox"
+                              checked={editFormData?.is_new_member || false}
+                              onChange={(e) => editFormData && setEditFormData({ ...editFormData, is_new_member: e.target.checked })}
+                              className="w-4 h-4 accent-purple-500"
+                            />
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            <select
+                              value={editFormData?.group_number || ""}
+                              onChange={(e) => editFormData && setEditFormData({ ...editFormData, group_number: e.target.value ? parseInt(e.target.value) : null })}
+                              className="bg-[#1A1A1A] border border-white/10 rounded px-2 py-1 text-xs"
+                            >
+                              <option value="">-</option>
+                              {[1, 2, 3, 4].map(n => <option key={n} value={n}>G{n}</option>)}
+                            </select>
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            <span className="text-[10px] text-white/30 uppercase font-bold">In Edit Mode</span>
+                          </td>
+                          <td className="py-4 px-6 text-center text-white/20 text-xs">-</td>
+                          <td className="py-4 px-6 text-right">
+                            <div className="flex justify-end gap-2">
+                              <button onClick={() => handleSaveClick(registration.id)} className="p-2 hover:text-green-400 transition-colors"><Save className="w-4 h-4" /></button>
+                              <button onClick={handleCancelClick} className="p-2 hover:text-red-400 transition-colors"><X className="w-4 h-4" /></button>
+                            </div>
+                          </td>
+                        </>
+                      ) : (
+                        <>
+                          <td className="py-4 px-6">
+                            <span className="text-white font-medium block">{registration.full_name}</span>
+                            <span className="text-white/20 text-[10px] uppercase font-bold tracking-widest block mt-1">
+                              ID: {registration.id.slice(0, 8)}
                             </span>
-                        ) : (
-                             <span className="text-white/30 text-xs">-</span>
-                        )}
-                    </td>
-                    <td className="py-3 px-4">
-                      <button
-                        onClick={() =>
-                          togglePaymentStatus(
-                            registration.id,
-                            paidMap[registration.id]
-                          )
-                        }
-                        className={`px-3 py-1 rounded-full text-sm cursor-pointer ${
-                          paidMap[registration.id]
-                            ? "bg-green-500/20 text-green-300 hover:bg-green-500/30"
-                            : "bg-red-500/20 text-red-300 hover:bg-red-500/30"
-                        }`}
-                        title="Toggle Payment Status"
-                      >
-                        {paidMap[registration.id] ? "Paid" : "Unpaid"}
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedReg({ id: registration.id, name: registration.full_name });
-                          setShowPayAllModal(true);
-                        }}
-                        className="p-1 hover:bg-white/10 rounded transition-colors text-white/40 hover:text-white"
-                        title="Pay All Year"
-                      >
-                        <CreditCard className="w-4 h-4" />
-                      </button>
-                    </td>
-                    {/* Attendance Controls */}
-                    <td className="py-3 px-4">
-                        <div className="flex items-center justify-center gap-2">
-                            <button
-                                onClick={() => handleAttendance(registration.id, "Present")}
-                                className={`p-2 rounded-lg transition-colors border ${
-                                    attendanceMap[registration.id] === "Present"
-                                        ? "bg-green-500 text-white border-green-500"
-                                        : "bg-transparent text-white/30 border-white/20 hover:border-green-500/50 hover:text-green-500/50"
+                          </td>
+                          <td className="py-4 px-6">
+                            <span className="text-white/60 text-sm block lowercase">{registration.email}</span>
+                            <span className="text-white/40 text-[11px] block mt-1">{registration.phone}</span>
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            {registration.is_new_member ? (
+                              <span className="bg-purple-500/10 text-purple-400 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest border border-purple-500/20">New Member</span>
+                            ) : (
+                              <span className="text-white/10 text-[10px] uppercase font-bold tracking-widest">Regular</span>
+                            )}
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            {registration.group_number ? (
+                              <span className="bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest border border-blue-500/20">Group {registration.group_number}</span>
+                            ) : (
+                              <span className="text-white/10 text-xs">None</span>
+                            )}
+                          </td>
+                          <td className="py-4 px-6 text-center">
+                            <div className="flex flex-col items-center gap-2">
+                              <button
+                                onClick={() => togglePaymentStatus(registration.id, paidMap[registration.id])}
+                                className={`px-4 py-1 rounded-full text-[10px] uppercase font-bold tracking-widest transition-all ${
+                                  paidMap[registration.id]
+                                    ? "bg-green-500/10 text-green-400 border border-green-500/20"
+                                    : "bg-red-500/10 text-red-400 border border-red-500/20"
                                 }`}
-                                title="Mark Present"
-                            >
-                                <CheckCircle className="w-5 h-5" />
-                            </button>
-                            <button
-                                onClick={() => handleAttendance(registration.id, "Absent")}
-                                className={`p-2 rounded-lg transition-colors border ${
-                                    attendanceMap[registration.id] === "Absent"
-                                        ? "bg-red-500 text-white border-red-500"
-                                        : "bg-transparent text-white/30 border-white/20 hover:border-red-500/50 hover:text-red-500/50"
-                                }`}
-                                title="Mark Absent"
-                            >
-                                <XCircle className="w-5 h-5" />
-                            </button>
-                            <button
-                                onClick={() => handleUnmarkAttendance(registration.id)}
-                                className={`p-2 rounded-lg transition-colors border ${
-                                    !attendanceMap[registration.id]
-                                        ? "bg-gray-500/20 text-white/10 border-white/5 cursor-not-allowed"
-                                        : "bg-transparent text-white/30 border-white/20 hover:border-blue-500/50 hover:text-blue-500/50"
-                                }`}
-                                title="Clear Attendance"
-                                disabled={!attendanceMap[registration.id]}
-                            >
-                                <MinusCircle className="w-5 h-5" />
-                            </button>
-                        </div>
-                    </td>
-                    <td className="py-3 px-4">
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleEditClick(registration)}
-                          className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors"
-                          title="Edit Registration"
-                        >
-                          <Edit2 className="w-4 h-4 text-blue-400" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(registration.id)}
-                          className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
-                          title="Delete Registration"
-                        >
-                          <Trash2 className="w-4 h-4 text-red-400" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              )
-            )}
-          </tbody>
-        </table>
-      </div>
-      </div>
-
-      {/* Pagination Controls */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 text-white">
-          <button
-            onClick={handlePreviousPage}
-            disabled={currentPage === 1 || isLoading}
-            className="flex items-center gap-1 px-3 py-1 bg-white/10 rounded hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            Previous
-          </button>
-          <span>
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages || isLoading}
-            className="flex items-center gap-1 px-3 py-1 bg-white/10 rounded hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Next
-            <ChevronRight className="w-4 h-4" />
-          </button>
+                              >
+                                {paidMap[registration.id] ? "Paid" : "Unpaid"}
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setSelectedReg({ id: registration.id, name: registration.full_name });
+                                  setShowPayAllModal(true);
+                                }}
+                                className="text-white/20 hover:text-white transition-colors p-1"
+                                title="Bulk Pay All Year"
+                              >
+                                <CreditCard className="w-3 h-3" />
+                              </button>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="flex items-center justify-center gap-1">
+                                <button
+                                    onClick={() => handleAttendance(registration.id, "Present")}
+                                    className={`p-2 rounded-lg transition-all ${
+                                        attendanceMap[registration.id] === "Present"
+                                            ? "bg-green-500 text-white shadow-lg shadow-green-500/20"
+                                            : "opacity-20 hover:opacity-100 text-white"
+                                    }`}
+                                >
+                                    <CheckCircle className="w-5 h-5" />
+                                </button>
+                                <button
+                                    onClick={() => handleAttendance(registration.id, "Absent")}
+                                    className={`p-2 rounded-lg transition-all ${
+                                        attendanceMap[registration.id] === "Absent"
+                                            ? "bg-red-500 text-white shadow-lg shadow-red-500/20"
+                                            : "opacity-20 hover:opacity-100 text-white"
+                                    }`}
+                                >
+                                    <XCircle className="w-5 h-5" />
+                                </button>
+                                {attendanceMap[registration.id] && (
+                                  <button
+                                      onClick={() => handleUnmarkAttendance(registration.id)}
+                                      className="p-2 opacity-20 hover:opacity-100 hover:text-blue-400 transition-all"
+                                  >
+                                      <MinusCircle className="w-5 h-5" />
+                                  </button>
+                                )}
+                            </div>
+                          </td>
+                          <td className="py-4 px-6 text-right">
+                            <div className="flex justify-end gap-1 opacity-10 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => handleEditClick(registration)}
+                                className="p-2 hover:text-blue-400 transition-colors"
+                              >
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(registration.id)}
+                                className="p-2 hover:text-red-400 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </>
+                      )}
+                    </motion.tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center items-center gap-8 mt-16 pb-16">
+            <button
+              onClick={handlePreviousPage}
+              disabled={currentPage === 1}
+              className="glass p-4 rounded-full disabled:opacity-20 transition-all hover:bg-white/10"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+            <div className="flex flex-col items-center">
+              <span className="text-[10px] text-white/30 uppercase font-bold tracking-[0.3em] mb-1">Index</span>
+              <span className="text-xl font-bold font-syne">{currentPage} / {totalPages}</span>
+            </div>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+              className="glass p-4 rounded-full disabled:opacity-20 transition-all hover:bg-white/10"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Bulk Payment Modal */}
       {showPayAllModal && selectedReg && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div 
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="absolute inset-0 bg-black/80 backdrop-blur-md"
             onClick={() => setShowPayAllModal(false)}
           />
-          <div className="bg-gray-900/90 border border-white/10 backdrop-blur-xl rounded-2xl p-6 w-full max-w-md relative z-10 shadow-2xl">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                <CreditCard className="w-5 h-5 text-blue-400" />
-                Bulk Payment
-              </h3>
-              <button 
-                onClick={() => setShowPayAllModal(false)}
-                className="text-white/40 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <p className="text-white/70 mb-6">
-              Are you sure you want to mark all 12 months of <span className="text-white font-semibold">{new Date().getFullYear()}</span> as paid for <span className="text-white font-semibold">{selectedReg.name}</span>?
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="glass rounded-[2rem] p-12 w-full max-w-xl relative z-10 shadow-2xl text-center"
+          >
+            <CreditCard className="w-16 h-16 text-purple-400 mx-auto mb-8" />
+            <h3 className="text-3xl font-bold font-syne tracking-tighter text-white mb-4">
+              Authorize Bulk Payment
+            </h3>
+            <p className="text-white/50 text-lg font-light mb-12">
+              Mark all 12 months of <span className="text-white font-bold">{new Date().getFullYear()}</span> as paid for <span className="text-white font-bold">{selectedReg.name}</span>?
             </p>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <button
                 onClick={() => setShowPayAllModal(false)}
-                className="flex-1 px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-xl transition-all border border-white/5"
+                className="flex-1 px-8 py-4 glass rounded-full text-xs font-bold uppercase tracking-[0.2em] hover:bg-white/5 transition-all"
               >
                 Cancel
               </button>
               <button
                 onClick={handlePayAllMonths}
-                className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-600/20"
+                className="flex-1 px-8 py-4 bg-white text-black rounded-full text-xs font-bold uppercase tracking-[0.2em] hover:bg-purple-500 hover:text-white transition-all shadow-xl"
               >
                 Confirm Payment
               </button>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
     </div>
