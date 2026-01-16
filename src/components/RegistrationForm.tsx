@@ -409,6 +409,5 @@ const images = [
   "/images/youth_5.png",
   "/images/youth_6.png",
   "/images/youth_7.png",
-  "/images/youth_8.jpg",
    "/images/youth_11.jpeg"
 ];
