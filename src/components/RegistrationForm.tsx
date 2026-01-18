@@ -421,7 +421,7 @@ export default function RegistrationForm() {
 
 const images = [
   "/images/team1.webp",
-  "/images/youth_9.jpeg",
+  // "/images/youth_9.jpeg",
   "images/image.avif",
   "images/image_3.jpg",
   "/images/youth_1.png",
